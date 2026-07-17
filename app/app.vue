@@ -146,7 +146,12 @@
       </div>
 
       <div class="sidebar-footer">
-        <p>by fa33az</p>
+        <a href="https://github.com/fa33az/querysage" target="_blank" rel="noopener noreferrer" class="github-link">
+          <svg class="github-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          <span>fa33az</span>
+        </a>
       </div>
     </aside>
 
@@ -418,18 +423,9 @@
             <!-- Tab: Optimized -->
             <div v-show="currentTab === 'tab-optimized'" class="tab-content">
               <div class="optimized-comparison">
-                <div class="diff-container">
-                  <div class="diff-pane">
-                    <div class="pane-title">Query Asli</div>
-                    <!-- Monaco Reader -->
-                    <div id="original-output-editor" class="monaco-output-container"></div>
-                  </div>
-                  <div class="diff-pane">
-                    <div class="pane-title pane-title-optimized">Query Optimasi</div>
-                    <!-- Monaco Reader -->
-                    <div id="optimized-output-editor" class="monaco-output-container"></div>
-                  </div>
-                </div>
+                <!-- Monaco Diff Editor Container -->
+                <div id="monaco-diff-editor" class="monaco-diff-container"></div>
+                
                 <div class="optimization-notes mt-4">
                   <h4>Catatan Perubahan & Alasan Optimasi</h4>
                   <div v-html="results.optimizationNotesHTML"></div>
@@ -497,8 +493,7 @@ const results = reactive({
 // Monaco Editor Instances
 let sqlEditor = null
 let explainEditor = null
-let originalOutputEditor = null
-let optimizedOutputEditor = null
+let diffEditor = null
 
 // Computed
 const dbBadgeText = computed(() => {
@@ -613,38 +608,33 @@ const initMonaco = () => {
       })
     }
 
-    // 3. Original Query Output Editor (ReadOnly)
-    const origContainer = document.getElementById('original-output-editor')
-    if (origContainer) {
-      originalOutputEditor = window.monaco.editor.create(origContainer, {
-        value: results.originalQuery,
-        language: 'sql',
+    // 3. Monaco Diff Editor (ReadOnly)
+    const diffContainer = document.getElementById('monaco-diff-editor')
+    if (diffContainer) {
+      diffEditor = window.monaco.editor.createDiffEditor(diffContainer, {
         theme: 'vs-dark',
-        readOnly: true,
         automaticLayout: true,
-        minimap: { enabled: false },
+        readOnly: true,
         fontSize: 12,
         lineHeight: 18,
         fontFamily: 'Consolas, "JetBrains Mono", monospace'
       })
-    }
-
-    // 4. Optimized Query Output Editor (ReadOnly)
-    const optContainer = document.getElementById('optimized-output-editor')
-    if (optContainer) {
-      optimizedOutputEditor = window.monaco.editor.create(optContainer, {
-        value: results.optimizedQuery,
-        language: 'sql',
-        theme: 'vs-dark',
-        readOnly: true,
-        automaticLayout: true,
-        minimap: { enabled: false },
-        fontSize: 12,
-        lineHeight: 18,
-        fontFamily: 'Consolas, "JetBrains Mono", monospace'
-      })
+      
+      updateDiffModels()
     }
   })
+}
+
+const updateDiffModels = () => {
+  if (typeof window !== 'undefined' && window.monaco && diffEditor) {
+    const originalModel = window.monaco.editor.createModel(results.originalQuery, 'sql')
+    const modifiedModel = window.monaco.editor.createModel(results.optimizedQuery, 'sql')
+    
+    diffEditor.setModel({
+      original: originalModel,
+      modified: modifiedModel
+    })
+  }
 }
 
 // Methods
@@ -687,8 +677,7 @@ const selectTab = (tabName) => {
   if (tabName === 'tab-optimized') {
     // Monaco Editors need resize triggers when their container un-hides
     setTimeout(() => {
-      if (originalOutputEditor) originalOutputEditor.layout()
-      if (optimizedOutputEditor) optimizedOutputEditor.layout()
+      if (diffEditor) diffEditor.layout()
     }, 80)
   }
 }
@@ -960,9 +949,8 @@ const parseAndPopulateAIResponse = (mdText, originalSql, explain, engine) => {
     results.optimizationNotesHTML = formatMarkdownToHTML(sections.optimized || 'Query dioptimasi demi efisiensi.')
   }
 
-  // Update output editors
-  if (originalOutputEditor) originalOutputEditor.setValue(results.originalQuery)
-  if (optimizedOutputEditor) optimizedOutputEditor.setValue(results.optimizedQuery)
+  // Update diff models
+  updateDiffModels()
 
   currentTab.value = 'tab-overview'
 }
@@ -974,13 +962,13 @@ const updateScoreCardValues = (score, scoreText = '') => {
   let desc = ''
   let color = ''
   if (score <= 3) {
-    desc = 'Sangat Baik (Optimized) 🚀'
+    desc = 'Sangat Baik (Optimized)'
     color = '#007acc'
   } else if (score <= 6) {
-    desc = 'Sedang (Butuh Perbaikan) ⚠️'
+    desc = 'Sedang (Butuh Perbaikan)'
     color = '#cca700'
   } else {
-    desc = 'Buruk (Bahaya Latensi Tinggi) 🚨'
+    desc = 'Buruk (Bahaya Latensi Tinggi)'
     color = '#f44747'
   }
   
@@ -1098,9 +1086,8 @@ const runOfflineAnalysis = (sql, explain, engine) => {
   results.optimizedQuery = parseOfflineOptimizedQuery(sql, issues)
   results.optimizationNotesHTML = parseOfflineExplanation(issues)
 
-  // Update output editors
-  if (originalOutputEditor) originalOutputEditor.setValue(results.originalQuery)
-  if (optimizedOutputEditor) optimizedOutputEditor.setValue(results.optimizedQuery)
+  // Update diff models
+  updateDiffModels()
 
   // Plan Visualizer
   results.planSourceBadge = explain ? 'Heuristic Parsed Plan' : 'No Plan Provided'

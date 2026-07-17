@@ -926,46 +926,13 @@ select:focus, input[type="password"]:focus, input[type="text"]:focus {
     gap: 1rem;
 }
 
-.diff-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.diff-pane {
+.monaco-diff-container {
+    width: 100%;
+    height: 400px;
     background-color: #1e1e1e;
     border: var(--border-width) solid var(--border-color);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.pane-title {
-    background: #252526;
-    padding: 0.5rem 0.75rem;
-    border-bottom: var(--border-width) solid var(--border-color);
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #858585;
-    text-transform: uppercase;
-    height: 30px;
-    display: flex;
-    align-items: center;
-}
-
-.pane-title-optimized {
-    color: var(--success);
-}
-
-.diff-pane pre {
-    padding: 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    background: #1e1e1e;
-    color: #d4d4d4;
 }
 
 .optimization-notes p, .plan-raw-details p {
@@ -1045,7 +1012,7 @@ select:focus, input[type="password"]:focus, input[type="text"]:focus {
         min-height: 120px;
     }
 
-    .monaco-output-container {
+    .monaco-output-container, .monaco-diff-container {
         height: 400px; /* Locked height inside diff view */
     }
 }
@@ -1083,12 +1050,8 @@ select:focus, input[type="password"]:focus, input[type="text"]:focus {
         height: 220px;
     }
 
-    .monaco-output-container {
+    .monaco-output-container, .monaco-diff-container {
         height: 300px;
-    }
-
-    .diff-container {
-        grid-template-columns: 1fr;
     }
 }
 
@@ -1118,4 +1081,31 @@ select:focus, input[type="password"]:focus, input[type="text"]:focus {
         padding: 0.5rem 0.4rem;
         font-size: 0.7rem;
     }
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: var(--border-width) solid var(--border-color);
+    display: flex;
+    justify-content: center;
+}
+
+.github-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #858585;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: var(--transition);
+}
+
+.github-link:hover {
+    color: #ffffff;
+}
+
+.github-icon {
+    fill: currentColor;
 }
