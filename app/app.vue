@@ -8,7 +8,7 @@
 
       <!-- Language Selector -->
       <div class="sidebar-section">
-        <h3>Language / Bahasa</h3>
+        <h3>{{ t.langLabel }}</h3>
         <div class="select-wrapper">
           <select id="app-lang" v-model="currentLang" @change="saveLanguagePreference">
             <option value="en">English (US)</option>
@@ -320,7 +320,7 @@
                   </div>
                   <div class="issue-desc">{{ issue.desc }}</div>
                   <div class="issue-why">
-                    <strong>Kenapa memengaruhi performa / Why this affects performance:</strong> {{ issue.why }}
+                    <strong>{{ t.whyAffectsLabel }}:</strong> {{ issue.why }}
                   </div>
                 </div>
               </div>
@@ -497,6 +497,7 @@ const copyBtnTexts = reactive({})
 // Localization System
 const translations = {
   en: {
+    langLabel: 'Language',
     quickSamples: 'Quick Samples',
     dbEngine: 'Database Engine',
     directDB: 'Direct DB Connection',
@@ -562,9 +563,11 @@ const translations = {
     dbExplainFailed: 'Failed to fetch database explain plan:',
     visualExplain: 'Visualized Execution Plan',
     detailedExplain: 'Detailed Execution Plan Explanation',
-    optReasons: 'Change Logs & Optimization Reasons'
+    optReasons: 'Change Logs & Optimization Reasons',
+    whyAffectsLabel: 'Why this affects performance'
   },
   id: {
+    langLabel: 'Bahasa',
     quickSamples: 'Sampul Cepat / Samples',
     dbEngine: 'Database Engine',
     directDB: 'Koneksi DB Langsung',
@@ -630,7 +633,8 @@ const translations = {
     dbExplainFailed: 'Gagal mengambil Explain Plan otomatis:',
     visualExplain: 'Visualisasi Execution Plan',
     detailedExplain: 'Penjelasan Detail Execution Plan',
-    optReasons: 'Catatan Perubahan & Alasan Optimasi'
+    optReasons: 'Catatan Perubahan & Alasan Optimasi',
+    whyAffectsLabel: 'Kenapa memengaruhi performa'
   }
 }
 
@@ -827,7 +831,7 @@ const saveLanguagePreference = () => {
   } else {
     // Re-trigger visual badges based on language
     results.planSourceBadge = explainPlan.value.trim() 
-      ? (directConnectEnabled.value ? t.value.pastedPlanBadge : t.value.pastedPlanBadge)
+      ? t.value.pastedPlanBadge
       : t.value.estimatePlanBadge
     updateScoreCardValues(results.score)
   }
@@ -990,47 +994,112 @@ const runAIAnalysis = async (sql, explain, engine) => {
   const provider = activeProvider.value
   const key = provider === 'gemini' ? geminiKey.value.trim() : openaiKey.value.trim()
   const model = provider === 'gemini' ? geminiModel.value : openaiModel.value
-  const targetLanguageText = currentLang.value === 'id' ? 'Bahasa Indonesia' : 'English'
+  
+  let prompt = ''
 
-  const prompt = `Anda adalah AI SQL Performance Engineer yang ahli dalam optimasi query SQL untuk PostgreSQL, MySQL, SQL Server, SQLite, dan Oracle.
-Tugas utama Anda adalah menganalisis query SQL dan memberikan rekomendasi optimasi tanpa mengubah hasil atau logika bisnis dari query tersebut.
+  if (currentLang.value === 'en') {
+    prompt = `You are a professional Senior Database Administrator and SQL Performance Tuning expert.
+Analyze the following SQL query and its execution plan for ${engine}. 
+Provide a comprehensive, high-quality optimization report.
+You MUST write the response entirely in English.
 
-Database Engine yang digunakan: ${engine}
-Tulis laporan Anda sepenuhnya menggunakan: ${targetLanguageText}
-
-=== SQL QUERY ===
+=== TARGET SQL QUERY ===
 ${sql}
 
-=== EXECUTION PLAN / EXPLAIN OUTPUT ===
-${explain || 'Tidak ada execution plan yang disediakan.'}
+=== EXECUTION PLAN ===
+${explain || 'No execution plan provided.'}
 
-Instruksi Output:
-Analisis query tersebut dan berikan tanggapan menggunakan format markdown persis seperti berikut ini. Pastikan Anda menyertakan pembagi header '#' persis di bawah agar sistem kami dapat mem-parsing data Anda dengan benar. Jangan menambahkan pengantar meta atau penutup di luar struktur ini:
+---
+OUTPUT FORMAT REQUIREMENTS:
+You MUST respond exactly in English using the following markdown headers. Do NOT add any preamble, conversational greeting, or summary outside of these headings:
 
 # Query Summary
-[Berikan deskripsi singkat tentang tujuan query, tabel yang digunakan, dll.]
+Provide a detailed technical breakdown of the query structure, tables, join algorithms, and filters used.
 
 # Performance Issues
-[Jelaskan masalah performa yang terdeteksi secara mendalam.]
+Identify all potential bottlenecks (e.g. Seq scans, high costs, missing indexes, unindexed joins, leading wildcards, nested subqueries, distinct overheads). Explain why each affects performance.
 
 # Execution Plan Explanation
-[Jelaskan setiap node plan, estimated/actual cost, dan tipe scan.]
+Analyze the pasted explain plan line-by-line. Identify the most expensive nodes, actual vs estimated row counts, cost indicators, and scan/join operators. If no plan was provided, estimate the scan behaviors.
 
 # Index Recommendations
-[Berikan rekomendasi index. Untuk setiap index, tampilkan perintah SQL pembuatannya, alasan, dll.]
-Contoh format:
+Recommend optimal indexes. For each index, output:
+1. The exact DDL SQL statement inside a \`\`\`sql block.
+2. Reason: Why this index is recommended.
+3. Positive: Expected latency reductions.
+4. Negative: Write performance / disk storage trade-offs.
+
+Example:
 \`\`\`sql
-CREATE INDEX idx_orders_customer_date ON orders(customer_id, created_at);
+CREATE INDEX idx_tbl_col ON table(column);
 \`\`\`
-Alasan / Reason: ...
-Dampak Positif / Positive: ...
-Dampak Negatif / Negative: ...
+Reason: ...
+Positive: ...
+Negative: ...
 
 # Query Optimization
-[Berikan versi query SQL yang lebih efisien di dalam block SQL. Jelaskan alasan logis untuk setiap optimasi yang Anda buat.]
+Provide the refactored, highly optimized SQL query inside a single \`\`\`sql block.
+Explain step-by-step why the changes make the query run faster.
 
 # Performance Score
-[Berikan skor 1 sampai 10 dalam format 'Skor Performa: X' atau 'Performance Score: X'. Berikan penjelasan terpisah untuk performa pada Data Kecil, Data Menengah, dan Data Besar.]`
+Evaluate the query performance on a score from 1 (Excellent / Optimized) to 10 (Critical / Severe Latency).
+Include three bullet points in the exact format:
+* Small Data Scale: [Short explanation of latency impact under small volumes]
+* Medium Data Scale: [Short explanation of latency impact under medium volumes]
+* Large Data Scale: [Short explanation of latency impact under large volumes]
+Score must be written like: "Performance Score: X" where X is the number.`
+  } else {
+    prompt = `Anda adalah seorang Senior Database Administrator dan pakar SQL Performance Tuning profesional.
+Analisis query SQL berikut beserta execution plan-nya untuk ${engine}.
+Berikan laporan optimasi berkualitas tinggi yang komprehensif.
+Anda WAJIB menulis tanggapan sepenuhnya dalam Bahasa Indonesia.
+
+=== TARGET SQL QUERY ===
+${sql}
+
+=== EXECUTION PLAN ===
+${explain || 'Tidak ada execution plan yang disediakan.'}
+
+---
+OUTPUT FORMAT REQUIREMENTS:
+Anda WAJIB memberikan tanggapan dalam Bahasa Indonesia menggunakan format header markdown berikut secara persis. Jangan menambahkan salam pembuka, obrolan santai, atau kesimpulan di luar struktur ini:
+
+# Ringkasan Query
+Berikan penjelasan teknis terperinci mengenai struktur query, tabel-tabel yang terlibat, algoritma join, dan filter pencarian.
+
+# Masalah Performa
+Identifikasi semua potensi hambatan performa (misalnya seq scan, biaya tinggi, index hilang, join tanpa index, leading wildcard, subquery bertingkat, overhead distinct). Jelaskan alasan mengapa setiap hal tersebut memengaruhi performa.
+
+# Penjelasan Execution Plan
+Analisis explain plan baris demi baris. Identifikasi baris operasi termahal, actual vs estimated row count, biaya cost, dan tipe scan/join. Jika tidak ada plan, berikan estimasi perilakunya.
+
+# Rekomendasi Index
+Berikan rekomendasi index yang optimal. Untuk setiap index, cantumkan:
+1. Sintaks DDL SQL pembuatan index di dalam blok \`\`\`sql.
+2. Alasan: Mengapa index ini direkomendasikan.
+3. Dampak Positif: Estimasi pengurangan latensi.
+4. Dampak Negatif: Overhead pada proses tulis / penyimpanan disk.
+
+Contoh:
+\`\`\`sql
+CREATE INDEX idx_tbl_col ON table(column);
+\`\`\`
+Alasan: ...
+Dampak Positif: ...
+Dampak Negatif: ...
+
+# Optimasi Query
+Berikan hasil modifikasi query SQL yang lebih efisien di dalam satu blok \`\`\`sql.
+Jelaskan langkah demi langkah mengapa perubahan tersebut membuat query berjalan lebih cepat.
+
+# Skor Performa
+Evaluasi performa query dengan skor dari 1 (Sangat Baik / Teroptimasi) sampai 10 (Sangat Buruk / Bahaya Latensi Tinggi).
+Cantumkan tiga poin dalam format persis seperti ini:
+* Data Kecil: [Penjelasan singkat dampak latensi pada skala kecil]
+* Data Menengah: [Penjelasan singkat dampak latensi pada skala menengah]
+* Data Besar: [Penjelasan singkat dampak latensi pada skala besar]
+Skor wajib dituliskan dalam format: "Skor Performa: X" di mana X adalah angkanya.`
+  }
 
   let resultText = ''
 
@@ -1092,22 +1161,23 @@ const parseAndPopulateAIResponse = (mdText, originalSql, explain, engine) => {
     score: ''
   }
 
-  const parts = mdText.split(/(?=# (?:Query Summary|Ringkasan Query|Performance Issues|Masalah Performa|Execution Plan Explanation|Penjelasan Execution Plan|Index Recommendations|Rekomendasi Index|Query Optimization|Optimasi Query|Performance Score|Skor Performa))/i)
+  // Robust parsing: matches any heading level (#, ##, ###) and optional section numbers (e.g. 1., 2.)
+  const parts = mdText.split(/(?=^##?\s*(?:\d+\.?\s*)?(?:Query Summary|Ringkasan Query|Performance Issues|Masalah Performa|Execution Plan Explanation|Penjelasan Execution Plan|Index Recommendations|Rekomendasi Index|Query Optimization|Optimasi Query|Performance Score|Skor Performa))/gim)
   
   parts.forEach(part => {
     const trimmed = part.trim()
-    if (trimmed.startsWith('# Query Summary') || trimmed.startsWith('# Ringkasan Query')) {
-      sections.summary = trimmed.replace(/# (?:Query Summary|Ringkasan Query)/i, '').trim()
-    } else if (trimmed.startsWith('# Performance Issues') || trimmed.startsWith('# Masalah Performa')) {
-      sections.issues = trimmed.replace(/# (?:Performance Issues|Masalah Performa)/i, '').trim()
-    } else if (trimmed.startsWith('# Execution Plan Explanation') || trimmed.startsWith('# Penjelasan Execution Plan')) {
-      sections.plan = trimmed.replace(/# (?:Execution Plan Explanation|Penjelasan Execution Plan)/i, '').trim()
-    } else if (trimmed.startsWith('# Index Recommendations') || trimmed.startsWith('# Rekomendasi Index')) {
-      sections.indexes = trimmed.replace(/# (?:Index Recommendations|Rekomendasi Index)/i, '').trim()
-    } else if (trimmed.startsWith('# Query Optimization') || trimmed.startsWith('# Optimasi Query')) {
-      sections.optimized = trimmed.replace(/# (?:Query Optimization|Optimasi Query)/i, '').trim()
-    } else if (trimmed.startsWith('# Performance Score') || trimmed.startsWith('# Skor Performa')) {
-      sections.score = trimmed.replace(/# (?:Performance Score|Skor Performa)/i, '').trim()
+    if (/##?\s*(?:\d+\.?\s*)?(?:Query Summary|Ringkasan Query)/i.test(trimmed)) {
+      sections.summary = trimmed.replace(/^##?\s*(?:\d+\.?\s*)?(?:Query Summary|Ringkasan Query)/i, '').trim()
+    } else if (/##?\s*(?:\d+\.?\s*)?(?:Performance Issues|Masalah Performa)/i.test(trimmed)) {
+      sections.issues = trimmed.replace(/^##?\s*(?:\d+\.?\s*)?(?:Performance Issues|Masalah Performa)/i, '').trim()
+    } else if (/##?\s*(?:\d+\.?\s*)?(?:Execution Plan Explanation|Penjelasan Execution Plan)/i.test(trimmed)) {
+      sections.plan = trimmed.replace(/^##?\s*(?:\d+\.?\s*)?(?:Execution Plan Explanation|Penjelasan Execution Plan)/i, '').trim()
+    } else if (/##?\s*(?:\d+\.?\s*)?(?:Index Recommendations|Rekomendasi Index)/i.test(trimmed)) {
+      sections.indexes = trimmed.replace(/^##?\s*(?:\d+\.?\s*)?(?:Index Recommendations|Rekomendasi Index)/i, '').trim()
+    } else if (/##?\s*(?:\d+\.?\s*)?(?:Query Optimization|Optimasi Query)/i.test(trimmed)) {
+      sections.optimized = trimmed.replace(/^##?\s*(?:\d+\.?\s*)?(?:Query Optimization|Optimasi Query)/i, '').trim()
+    } else if (/##?\s*(?:\d+\.?\s*)?(?:Performance Score|Skor Performa)/i.test(trimmed)) {
+      sections.score = trimmed.replace(/^##?\s*(?:\d+\.?\s*)?(?:Performance Score|Skor Performa)/i, '').trim()
     }
   })
 
@@ -1173,9 +1243,9 @@ const updateScoreCardValues = (score, scoreText = '') => {
   results.scoreColor = color
 
   if (scoreText) {
-    const smallMatch = scoreText.match(/(?:Data Kecil|Small Data Scale):?\s*([^\n]+)/i) || []
-    const medMatch = scoreText.match(/(?:Data Menengah|Medium Data Scale):?\s*([^\n]+)/i) || []
-    const largeMatch = scoreText.match(/(?:Data Besar|Large Data Scale):?\s*([^\n]+)/i) || []
+    const smallMatch = scoreText.match(/(?:Data Kecil|Small Data Scale|Small Data):?\s*([^\n]+)/i) || []
+    const medMatch = scoreText.match(/(?:Data Menengah|Medium Data Scale|Medium Data):?\s*([^\n]+)/i) || []
+    const largeMatch = scoreText.match(/(?:Data Besar|Large Data Scale|Large Data):?\s*([^\n]+)/i) || []
 
     results.estSmallText = smallMatch[1] || (score <= 3 ? (currentLang.value === 'id' ? 'Sangat cepat (< 5ms). Beban minimal.' : 'Very fast (< 5ms). Minimal load.') : (currentLang.value === 'id' ? 'Cepat (< 20ms) karena volume data kecil masih bisa tertampung memori.' : 'Fast (< 20ms) as small data fits in memory buffer.'))
     results.estMedText = medMatch[1] || (score <= 3 ? (currentLang.value === 'id' ? 'Cepat (< 50ms) berkat index.' : 'Fast (< 50ms) using indexes.') : (currentLang.value === 'id' ? 'Latensi terasa meningkat (100ms - 500ms). Full table scan mulai membebani disk.' : 'Increased latency (100ms - 500ms). Table scans start loading disks.'))
@@ -1489,7 +1559,7 @@ const formatMarkdownToHTML = (md) => {
     .replace(/```sql([\s\S]*?)```/g, '<div class="code-wrapper-container"><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.innerText); this.innerText=\'Copied!\'; setTimeout(() => this.innerText=\'Copy\', 1000)">Copy</button><pre><code class="language-sql">$1</code></pre></div>')
     .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*\*([^*]+)\*\"/g, '<strong>$1</strong>')
     .replace(/^#### (.*$)/gim, '<h5>$1</h5>')
     .replace(/^### (.*$)/gim, '<h4>$1</h4>')
     .replace(/^## (.*$)/gim, '<h3>$1</h3>')
@@ -1513,12 +1583,13 @@ const parseIssuesFromMarkdown = (issuesMd) => {
   if (!issuesMd) return []
   const parsed = []
   
-  const listItems = issuesMd.match(/-\s+\*\*([^*]+)\*\*:\s*([^\n]+)/g) || []
+  // Match items like "- **Title**: Description" or "* **Title** - Description"
+  const listItems = issuesMd.match(/[-*]\s+\*\*([^*]+)\*\*(?:\s*[:-]\s*)([^\n]+)/g) || []
   listItems.forEach(item => {
-    const match = item.match(/-\s+\*\*([^*]+)\*\*:\s*([^\n]+)/)
+    const match = item.match(/[-*]\s+\*\*([^*]+)\*\*(?:\s*[:-]\s*)([^\n]+)/)
     if (match) {
       parsed.push({
-        severity: match[1].toLowerCase().includes('tinggi') || match[1].toLowerCase().includes('high') ? 'high' : 'medium',
+        severity: match[1].toLowerCase().includes('tinggi') || match[1].toLowerCase().includes('high') || match[1].toLowerCase().includes('critical') ? 'high' : 'medium',
         title: match[1],
         desc: match[2],
         why: currentLang.value === 'id' ? 'Diidentifikasi oleh AI Performance Agent.' : 'Reported by the AI Performance Agent.'
@@ -1529,8 +1600,8 @@ const parseIssuesFromMarkdown = (issuesMd) => {
   if (parsed.length === 0) {
     parsed.push({
       severity: 'medium',
-      title: 'Performance Issues',
-      desc: currentLang.value === 'id' ? 'Klik tab Masalah Performa untuk membaca rincian lengkap dari AI.' : 'Click the issues tab for full detailed review.',
+      title: currentLang.value === 'id' ? 'Masalah Performa' : 'Performance Issues',
+      desc: currentLang.value === 'id' ? 'Lihat rincian lengkap di bawah.' : 'See the detailed logs below.',
       why: issuesMd
     })
   }
@@ -1551,8 +1622,8 @@ const parseIndexesFromMarkdown = (indexesMd) => {
       const name = nameMatch ? nameMatch[1] : `idx_recommendation_${idx + 1}`
       
       const reasonMatch = block.match(/(?:Alasan|Reason):?\s*([^\n]+)/i) || []
-      const impactPos = block.match(/(?:Dampak Positif|Positive):?\s*([^\n]+)/i) || []
-      const impactNeg = block.match(/(?:Dampak Negatif|Negative):?\s*([^\n]+)/i) || []
+      const impactPos = block.match(/(?:Dampak Positif|Positive|Positive Impact):?\s*([^\n]+)/i) || []
+      const impactNeg = block.match(/(?:Dampak Negatif|Negative|Negative Impact):?\s*([^\n]+)/i) || []
 
       parsed.push({
         name: name,
