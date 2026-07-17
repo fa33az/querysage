@@ -1002,6 +1002,7 @@ const runAIAnalysis = async (sql, explain, engine) => {
 Analyze the following SQL query and its execution plan for ${engine}. 
 Provide a comprehensive, high-quality optimization report.
 You MUST write the response entirely in English.
+Provide direct, absolute, and concrete recommendations. Avoid speculative or undecided language (e.g. 'maybe', 'might', 'perhaps', 'try this'). Act as a decisive senior performance engineer.
 
 === TARGET SQL QUERY ===
 ${sql}
@@ -1053,6 +1054,7 @@ Score must be written like: "Performance Score: X" where X is the number.`
 Analisis query SQL berikut beserta execution plan-nya untuk ${engine}.
 Berikan laporan optimasi berkualitas tinggi yang komprehensif.
 Anda WAJIB menulis tanggapan sepenuhnya dalam Bahasa Indonesia.
+Berikan rekomendasi yang pasti dan mantap (jangan plin-plan, jangan gunakan kata 'mungkin', 'sepertinya', atau kalimat ragu-ragu). Berikan instruksi langsung dan absolut.
 
 === TARGET SQL QUERY ===
 ${sql}
@@ -1552,31 +1554,94 @@ const parseOfflineExplanation = (issues) => {
 const formatMarkdownToHTML = (md) => {
   if (!md) return `<p class="placeholder-text">${t.value.placeholderNoPlan}</p>`
   
-  let html = md
+  const lines = md.split(/\r?\n/)
+  let html = ''
+  let inList = false
+  let inCode = false
+  let codeLang = ''
+  let codeContent = ''
+
+  lines.forEach((line) => {
+    let trimmed = line.trim()
+    
+    // Code block check
+    if (trimmed.startsWith('```')) {
+      if (inCode) {
+        // Close code block
+        inCode = false
+        if (codeLang.includes('sql')) {
+          html += `<div class="code-wrapper-container">
+            <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.innerText); this.innerText='Copied!'; setTimeout(() => this.innerText='Copy', 1000)">Copy</button>
+            <pre><code class="language-sql">${codeContent.trim()}</code></pre>
+          </div>`
+        } else {
+          html += `<pre><code>${codeContent.trim()}</code></pre>`
+        }
+        codeContent = ''
+        codeLang = ''
+      } else {
+        // Open code block
+        inCode = true
+        codeLang = trimmed.substring(3).toLowerCase()
+      }
+      return
+    }
+
+    if (inCode) {
+      codeContent += line + '\n'
+      return
+    }
+
+    // List checks
+    const listMatch = line.match(/^(\s*)[-*+]\s+(.*)$/)
+    if (listMatch) {
+      if (!inList) {
+        html += '<ul>'
+        inList = true
+      }
+      let content = listMatch[2]
+      content = formatInlineMarkdown(content)
+      html += `<li>${content}</li>`
+      return
+    } else {
+      if (inList) {
+        html += '</ul>'
+        inList = false
+      }
+    }
+
+    // Headings
+    if (trimmed.startsWith('# ')) {
+      html += `<h3>${formatInlineMarkdown(trimmed.substring(2))}</h3>`
+    } else if (trimmed.startsWith('## ')) {
+      html += `<h4>${formatInlineMarkdown(trimmed.substring(3))}</h4>`
+    } else if (trimmed.startsWith('### ')) {
+      html += `<h5>${formatInlineMarkdown(trimmed.substring(4))}</h5>`
+    } else if (trimmed.startsWith('#### ')) {
+      html += `<h6>${formatInlineMarkdown(trimmed.substring(5))}</h6>`
+    } else if (trimmed === '') {
+      // Skip empty lines
+    } else {
+      // Standard paragraph
+      html += `<p>${formatInlineMarkdown(trimmed)}</p>`
+    }
+  })
+
+  if (inList) {
+    html += '</ul>'
+  }
+
+  return html
+}
+
+const formatInlineMarkdown = (text) => {
+  if (!text) return ''
+  return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/```sql([\s\S]*?)```/g, '<div class="code-wrapper-container"><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.innerText); this.innerText=\'Copied!\'; setTimeout(() => this.innerText=\'Copy\', 1000)">Copy</button><pre><code class="language-sql">$1</code></pre></div>')
-    .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\"/g, '<strong>$1</strong>')
-    .replace(/^#### (.*$)/gim, '<h5>$1</h5>')
-    .replace(/^### (.*$)/gim, '<h4>$1</h4>')
-    .replace(/^## (.*$)/gim, '<h3>$1</h3>')
-    .replace(/^\s*\*\s+(.*$)/gim, '<li>$1</li>')
-    .replace(/^\s*-\s+(.*$)/gim, '<li>$1</li>')
-    .replace(/<\/li>\s*<li>/g, '</li><li>')
-
-  html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
-  
-  html = html.split('\n\n').map(p => {
-    if (p.trim().startsWith('<h') || p.trim().startsWith('<ul') || p.trim().startsWith('<pre') || p.trim().startsWith('<div')) {
-      return p
-    }
-    return `<p>${p.replace(/\n/g, '<br>')}</p>`
-  }).join('')
-
-  return html
 }
 
 const parseIssuesFromMarkdown = (issuesMd) => {
