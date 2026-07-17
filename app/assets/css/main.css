@@ -1,0 +1,1119 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+/* ==========================================
+   QuerySage CSS - VSCode Dark Theme Edition
+   Stark Editor Look / Syntax Accents
+   ========================================== */
+
+:root {
+    /* VSCode Theme Palette */
+    --bg-main: #1e1e1e;         /* Editor background */
+    --bg-sidebar: #252526;      /* Activity/File sidebar background */
+    --bg-card: #2d2d2d;         /* Component panels */
+    --border-color: #3c3c3c;    /* VSCode separator */
+    
+    --primary: #007acc;         /* VSCode Blue */
+    --primary-text: #ffffff;
+    --primary-hover: #1f8ad2;
+    
+    --secondary: #3c3c3c;
+    --secondary-text: #cccccc;
+    --secondary-hover: #4e4e4e;
+    
+    --accent-blue: #007acc;
+    --success: #4ec9b0;         /* VSCode Teal/Green syntax */
+    --warning: #dcdcaa;         /* VSCode Yellow syntax */
+    --danger: #f44747;          /* VSCode Error Red */
+    
+    --text-primary: #cccccc;    /* Light text */
+    --text-secondary: #9cdcfe;  /* Light blue syntax accent */
+    --text-muted: #6a9955;      /* VSCode green comment style */
+    
+    /* Typography */
+    --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'Consolas', 'JetBrains Mono', monospace;
+    
+    --border-width: 1px;
+    --radius-sm: 3px;
+    --radius-md: 4px;
+    --radius-lg: 6px;
+    
+    --transition: all 0.15s ease;
+}
+
+/* Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.5;
+}
+
+/* Scrollbar Styling - Match VSCode Dark scrollbars */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(121, 121, 121, 0.3);
+    border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(121, 121, 121, 0.5);
+}
+
+/* Main Container Layout */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100vw;
+}
+
+/* Sidebar Styling - File Explorer Look */
+.sidebar {
+    width: 290px;
+    background-color: var(--bg-sidebar);
+    border-right: var(--border-width) solid var(--border-color);
+    padding: 1.5rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding-bottom: 1rem;
+    border-bottom: var(--border-width) solid var(--border-color);
+}
+
+.logo-icon {
+    font-size: 1.1rem;
+    color: var(--primary-text);
+    background: var(--primary);
+    padding: 0.15rem 0.4rem;
+    border-radius: var(--radius-sm);
+    font-weight: 900;
+}
+
+.brand-text h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+}
+
+.brand-text .subtext {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.sidebar-section h3 {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #858585;
+    font-weight: 700;
+}
+
+/* Select wrapper and inputs */
+.select-wrapper {
+    position: relative;
+}
+
+select, input[type="password"] {
+    width: 100%;
+    background-color: #3c3c3c;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: #ffffff;
+    padding: 0.5rem 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    transition: var(--transition);
+    outline: none;
+}
+
+select:focus, input[type="password"]:focus {
+    border-color: var(--primary);
+}
+
+/* Collapsible Settings - VSCode Settings look */
+.config-details {
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: #2d2d2d;
+    overflow: hidden;
+}
+
+.config-summary {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: #333333;
+    user-select: none;
+    outline: none;
+    color: #cccccc;
+}
+
+.config-details-content {
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    background: #252526;
+}
+
+/* Config Tabs */
+.config-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #2d2d2d;
+    border-radius: var(--radius-sm);
+    padding: 1px;
+    border: var(--border-width) solid var(--border-color);
+}
+
+.config-tab-btn {
+    background: none;
+    border: none;
+    color: #cccccc;
+    padding: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.config-tab-btn.active {
+    background-color: #3c3c3c;
+    color: #ffffff;
+}
+
+.provider-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.provider-fields label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #858585;
+}
+
+.key-status-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+}
+
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    border: var(--border-width) solid var(--border-color);
+    font-size: 0.65rem;
+}
+
+.status-indicator::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.status-indicator.offline {
+    background-color: #333333;
+    color: #858585;
+    border-color: #3c3c3c;
+}
+.status-indicator.offline::before { background-color: #555555; }
+
+.status-indicator.online {
+    background-color: rgba(78, 201, 176, 0.1);
+    color: var(--success);
+    border-color: rgba(78, 201, 176, 0.3);
+}
+.status-indicator.online::before { background-color: var(--success); }
+
+/* Quick Samples buttons */
+.sample-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+/* Main Content Workspace */
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Avoid double scrollbars on desktop */
+}
+
+/* Top bar navigation */
+.top-bar {
+    background-color: #252526;
+    border-bottom: var(--border-width) solid var(--border-color);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    height: 52px;
+}
+
+.header-title h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.db-badge {
+    background: #3c3c3c;
+    border: var(--border-width) solid var(--border-color);
+    color: #cccccc;
+    padding: 0.1rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 0.5rem;
+}
+
+/* Grid Layout for Panels */
+.workspace-grid {
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 1rem;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+/* VSCode Panels */
+.panel {
+    background-color: var(--bg-card);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 0.5rem 1rem;
+    border-bottom: var(--border-width) solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #252526;
+    color: #ffffff;
+    height: 38px;
+}
+
+.panel-header h3 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #858585;
+}
+
+.panel-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex-grow: 1;
+    position: relative;
+    background: var(--bg-main);
+    overflow: hidden; /* Prevent parent overflow */
+}
+
+/* Editors and Textareas */
+.editor-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.editor-container label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #858585;
+    text-transform: uppercase;
+}
+
+.editor-container label .required {
+    color: var(--danger);
+}
+
+/* Monaco Container Styles */
+.monaco-editor-container, .monaco-output-container {
+    width: 100%;
+    background-color: #1e1e1e;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+#sql-editor {
+    height: 180px;
+}
+
+#explain-editor {
+    height: 220px;
+}
+
+.monaco-output-container {
+    height: 320px;
+}
+
+/* Buttons (VSCode Flat Color style) */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: var(--primary-text);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+    background-color: var(--secondary);
+    color: var(--secondary-text);
+    border: var(--border-width) solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-hover);
+}
+
+.btn-sm {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.7rem;
+}
+
+/* Tabs - VSCode Editor Tab Header Look */
+.tabs-header {
+    padding: 0;
+    background: #252526;
+    border-bottom: var(--border-width) solid var(--border-color);
+    height: 38px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.tabs {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+}
+
+.tab-btn {
+    background: #2d2d2d;
+    border: none;
+    border-right: var(--border-width) solid var(--border-color);
+    border-bottom: var(--border-width) solid var(--border-color);
+    color: #969696;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+    flex-grow: 1;
+    text-align: center;
+    height: 35px;
+}
+
+.tab-btn:hover {
+    background-color: #333333;
+    color: #cccccc;
+}
+
+.tab-btn.active {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-bottom: var(--border-width) solid transparent;
+    border-top: 2px solid var(--primary);
+    height: 38px;
+}
+
+/* Tab content layouts */
+.tab-content-container {
+    padding: 1rem;
+    overflow-y: auto;
+    max-height: none; /* Scrolled under desktop flex rules */
+    background: #1e1e1e;
+    flex-grow: 1;
+}
+
+/* Loading Overlay */
+.loader-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(30, 30, 30, 0.9);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    border: var(--border-width) solid var(--border-color);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 122, 204, 0.2);
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Overview Tab Styling */
+.overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.score-card {
+    background-color: #252526;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+}
+
+.score-card h4, .quick-summary-card h4, .performance-estimates h4, .plan-raw-details h4, .optimization-notes h4 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #858585;
+    margin-bottom: 0.5rem;
+    width: 100%;
+    font-weight: 700;
+}
+
+.score-display {
+    margin: 0.25rem 0;
+}
+
+.score-number {
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #ffffff;
+}
+
+.score-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background-color: #333333;
+    padding: 0.2rem 0.5rem;
+    margin-top: 0.4rem;
+    display: inline-block;
+    color: #cccccc;
+    border: var(--border-width) solid var(--border-color);
+}
+
+.score-bar-container {
+    width: 100%;
+    height: 8px;
+    background-color: #1e1e1e;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.score-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease-in-out;
+}
+
+.quick-summary-card {
+    background-color: #252526;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+}
+
+.summary-details {
+    font-size: 0.85rem;
+    color: #d4d4d4;
+}
+
+.summary-details h5 {
+    font-weight: 700;
+    margin: 0.5rem 0 0.25rem 0;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.summary-details ul {
+    padding-left: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.summary-details li {
+    margin-bottom: 0.2rem;
+}
+
+/* Scale Estimates */
+.performance-estimates {
+    display: flex;
+    flex-direction: column;
+}
+
+.estimate-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.est-card {
+    background: #252526;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.85rem;
+    transition: var(--transition);
+}
+
+.est-card:hover {
+    border-color: #555555;
+}
+
+.est-card h5 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.est-card p {
+    font-size: 0.75rem;
+    color: #aaaaaa;
+}
+
+/* Issues Tab Styling */
+.issues-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.issue-item {
+    background: #252526;
+    border: var(--border-width) solid var(--border-color);
+    border-left: 4px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3;
+}
+
+.issue-item.high {
+    border-left-color: var(--danger);
+    background: rgba(244, 71, 71, 0.05);
+}
+.issue-item.medium {
+    border-left-color: var(--warning);
+    background: rgba(220, 202, 170, 0.05);
+}
+.issue-item.low {
+    border-left-color: var(--accent-blue);
+    background: rgba(0, 122, 204, 0.05);
+}
+
+.issue-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #ffffff;
+}
+
+.issue-severity {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    padding: 0.1rem 0.3rem;
+    font-weight: 700;
+    border: var(--border-width) solid var(--border-color);
+    background-color: #1e1e1e;
+}
+
+.high .issue-severity { color: var(--danger); border-color: rgba(244, 71, 71, 0.3); }
+.medium .issue-severity { color: var(--warning); border-color: rgba(220, 202, 170, 0.3); }
+.low .issue-severity { color: var(--accent-blue); border-color: rgba(0, 122, 204, 0.3); }
+
+.issue-desc {
+    font-size: 0.8rem;
+    color: #d4d4d4;
+}
+
+.issue-why {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-top: 1px dashed var(--border-color);
+    padding-top: 0.35rem;
+    margin-top: 0.2rem;
+}
+
+/* Execution Plan Tree Styling */
+.plan-visualizer-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.plan-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.badge {
+    background: #3c3c3c;
+    border: var(--border-width) solid var(--border-color);
+    color: #cccccc;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.plan-tree {
+    background-color: #1e1e1e;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+.plan-node {
+    position: relative;
+    padding-left: 1rem;
+    margin: 0.5rem 0;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+.plan-node::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6rem;
+    width: 6px;
+    height: var(--border-width);
+    background-color: var(--border-color);
+}
+
+.plan-node::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--border-width);
+    height: 100%;
+    background-color: var(--border-color);
+}
+
+.plan-node:last-child::after {
+    height: 0.6rem;
+}
+
+.node-content {
+    background: #252526;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0.55rem;
+    display: inline-block;
+}
+
+.node-content.high-cost {
+    border-color: var(--danger);
+    background: rgba(244, 71, 71, 0.1);
+}
+
+.node-type {
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.node-metrics {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    margin-left: 0.35rem;
+}
+
+.plan-raw-details pre {
+    background-color: #252526;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    color: #d4d4d4;
+}
+
+/* Index Tab Styling */
+.indexes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.index-card {
+    background: #252526;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.index-card-header {
+    background: #2d2d2d;
+    padding: 0.5rem 0.85rem;
+    border-bottom: var(--border-width) solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.index-card-header h5 {
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+
+.index-card-body {
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.index-sql-wrapper {
+    position: relative;
+}
+
+.index-sql-wrapper pre {
+    background-color: #1e1e1e;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    overflow-x: auto;
+}
+
+.copy-btn {
+    position: absolute;
+    right: 0.4rem;
+    top: 0.4rem;
+    background: #3c3c3c;
+    border: var(--border-width) solid var(--border-color);
+    color: #cccccc;
+    padding: 0.15rem 0.35rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.65rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.copy-btn:hover {
+    background-color: #4a4a4a;
+    color: #ffffff;
+}
+
+.index-impact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.impact-subcard h6 {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #858585;
+    margin-bottom: 0.15rem;
+    font-weight: 700;
+}
+
+.impact-subcard p {
+    font-size: 0.75rem;
+    color: #aaaaaa;
+}
+
+/* Optimized Tab Styling */
+.optimized-comparison {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.diff-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.diff-pane {
+    background-color: #1e1e1e;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.pane-title {
+    background: #252526;
+    padding: 0.5rem 0.75rem;
+    border-bottom: var(--border-width) solid var(--border-color);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #858585;
+    text-transform: uppercase;
+    height: 30px;
+    display: flex;
+    align-items: center;
+}
+
+.pane-title-optimized {
+    color: var(--success);
+}
+
+.diff-pane pre {
+    padding: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    background: #1e1e1e;
+    color: #d4d4d4;
+}
+
+.optimization-notes p, .plan-raw-details p {
+    font-size: 0.8rem;
+    color: #aaaaaa;
+    line-height: 1.5;
+    margin-bottom: 0.35rem;
+}
+
+/* Helpers */
+.code-wrapper-container {
+    position: relative;
+    margin: 0.75rem 0;
+}
+
+.placeholder-text {
+    color: #858585;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 1.5rem 0;
+    font-style: italic;
+}
+
+.mt-4 { margin-top: 1rem; }
+.mb-4 { margin-bottom: 1rem; }
+
+/* ==========================================
+   Responsive Breakpoints & Layout Locking
+   ========================================== */
+
+/* Locked Desktop Viewport (IDE Mode) */
+@media (min-width: 1025px) {
+    .app-container {
+        height: 100vh;
+        overflow: hidden;
+    }
+    
+    .sidebar {
+        height: 100vh;
+        overflow-y: auto;
+    }
+    
+    .main-content {
+        height: 100vh;
+        overflow: hidden;
+    }
+    
+    .workspace-grid {
+        height: calc(100vh - 52px); /* Minus top-bar height */
+        overflow: hidden;
+        grid-template-rows: 1fr;
+    }
+    
+    .panel {
+        height: 100%;
+    }
+    
+    /* Lock inner panel bodies to prevent global scrolls */
+    .input-panel .panel-body {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    .input-panel .editor-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+    
+    #sql-editor, #explain-editor {
+        flex: 1;
+        height: 100%;
+        min-height: 120px;
+    }
+
+    .monaco-output-container {
+        height: 400px; /* Locked height inside diff view */
+    }
+}
+
+/* Mobile & Tablet Scrolling Layout */
+@media (max-width: 1024px) {
+    .app-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: var(--border-width) solid var(--border-color);
+        padding: 1.25rem;
+        gap: 1rem;
+    }
+    
+    .workspace-grid {
+        grid-template-columns: 1fr;
+        padding: 0.75rem;
+        gap: 1rem;
+        overflow: visible;
+    }
+    
+    .panel {
+        height: auto;
+    }
+
+    .monaco-editor-container {
+        height: 180px;
+    }
+    
+    #explain-editor {
+        height: 220px;
+    }
+
+    .monaco-output-container {
+        height: 300px;
+    }
+
+    .diff-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .top-bar {
+        padding: 0.75rem 1rem;
+    }
+    
+    .header-title h2 {
+        font-size: 1rem;
+    }
+    
+    .overview-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .estimate-cards {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .index-impact-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tab-btn {
+        padding: 0.5rem 0.4rem;
+        font-size: 0.7rem;
+    }
+}
