@@ -809,6 +809,13 @@ const initMonaco = () => {
 
 const updateDiffModels = () => {
   if (typeof window !== 'undefined' && window.monaco && diffEditor) {
+    // Safely dispose of old models to prevent severe memory leaks
+    const currentModels = diffEditor.getModel()
+    if (currentModels) {
+      if (currentModels.original) currentModels.original.dispose()
+      if (currentModels.modified) currentModels.modified.dispose()
+    }
+
     const originalModel = window.monaco.editor.createModel(results.originalQuery, 'sql')
     const modifiedModel = window.monaco.editor.createModel(results.optimizedQuery, 'sql')
     
@@ -1751,12 +1758,17 @@ const parseVisualPlanNodes = (explainText, engine) => {
   } else if (engine === 'mysql') {
     lines.forEach(line => {
       if (line.includes('|') && !line.includes('id') && !line.includes('---')) {
-        const cols = line.split('|').map(c => c.trim()).filter(c => c.length > 0)
-        if (cols.length >= 5) {
+        const cols = line.split('|').map(c => c.trim())
+        if (cols.length >= 13) {
+          const tbl = cols[3] || 'unknown'
+          const pType = cols[5] || 'ALL'
+          const pKey = cols[7] || 'NULL'
+          const pRows = cols[10] || '0'
+          const pExtra = cols[12] || ''
           rootNodes.push({
-            type: `Table: ${cols[2]} (${cols[4].toUpperCase()})`,
-            metrics: `Key: ${cols[6] || 'NULL'} | Est Rows: ${cols[9]} | Extra: ${cols[11] || ''}`,
-            isExpensive: cols[4].toUpperCase() === 'ALL' || (cols[11] && (cols[11].toLowerCase().includes('temporary') || cols[11].toLowerCase().includes('filesort'))),
+            type: `Table: ${tbl} (${pType.toUpperCase()})`,
+            metrics: `Key: ${pKey} | Est Rows: ${pRows} | Extra: ${pExtra}`,
+            isExpensive: pType.toUpperCase() === 'ALL' || pExtra.toLowerCase().includes('temporary') || pExtra.toLowerCase().includes('filesort'),
             children: []
           })
         }

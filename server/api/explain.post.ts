@@ -6,9 +6,17 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { engine, host, port, user, password, database, connectionString, query } = body
 
-  if (!query) {
+  const trimmedQuery = (query || '').trim()
+  if (!trimmedQuery) {
     throw createError({ statusCode: 400, statusMessage: 'SQL Query must not be empty.' })
   }
+
+  // Reject multiple statements separated by semicolons to prevent SQL injection / multi-execution
+  const queryParts = trimmedQuery.split(';').map(p => p.trim()).filter(p => p.length > 0)
+  if (queryParts.length > 1) {
+    throw createError({ statusCode: 400, statusMessage: 'Multiple SQL statements are not allowed. Please enter only a single query.' })
+  }
+  const cleanQuery = queryParts[0]
 
   try {
     if (engine === 'postgresql') {
@@ -26,7 +34,6 @@ export default defineEventHandler(async (event) => {
       await client.connect()
       
       // Execute explain query safely
-      const cleanQuery = query.trim().replace(/;+$/, '')
       const res = await client.query(`EXPLAIN ANALYZE ${cleanQuery}`)
       await client.end()
       
@@ -42,7 +49,6 @@ export default defineEventHandler(async (event) => {
         database: database || ''
       })
 
-      const cleanQuery = query.trim().replace(/;+$/, '')
       const [rows]: any = await connection.execute(`EXPLAIN ${cleanQuery}`)
       await connection.end()
 
