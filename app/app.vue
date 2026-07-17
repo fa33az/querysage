@@ -6,9 +6,20 @@
         <img src="/logo.png" alt="QuerySage Logo" class="brand-logo-img">
       </div>
 
+      <!-- Language Selector -->
+      <div class="sidebar-section">
+        <h3>Language / Bahasa</h3>
+        <div class="select-wrapper">
+          <select id="app-lang" v-model="currentLang" @change="saveLanguagePreference">
+            <option value="en">English (US)</option>
+            <option value="id">Bahasa Indonesia</option>
+          </select>
+        </div>
+      </div>
+
       <!-- Quick Samples -->
       <div class="sidebar-section">
-        <h3>Quick Samples</h3>
+        <h3>{{ t.quickSamples }}</h3>
         <div class="sample-buttons">
           <button 
             type="button" 
@@ -35,7 +46,7 @@
       </div>
 
       <div class="sidebar-section">
-        <h3>Database Engine</h3>
+        <h3>{{ t.dbEngine }}</h3>
         <div class="select-wrapper">
           <select id="db-engine" v-model="dbEngine" @change="updateDefaultPort">
             <option value="postgresql">PostgreSQL</option>
@@ -50,30 +61,30 @@
       <!-- Direct DB Connection Credentials -->
       <div class="sidebar-section">
         <details class="config-details">
-          <summary class="config-summary">Direct DB Connection</summary>
+          <summary class="config-summary">{{ t.directDB }}</summary>
           <div class="config-details-content">
             <label class="checkbox-label">
               <input type="checkbox" v-model="directConnectEnabled" @change="saveDBCredentials">
-              Enable Auto-Explain
+              {{ t.enableAuto }}
             </label>
             
             <div v-show="directConnectEnabled" class="provider-fields">
-              <label for="db-host">Host</label>
+              <label for="db-host">{{ t.host }}</label>
               <input type="text" id="db-host" v-model="dbHost" placeholder="localhost" @input="saveDBCredentials">
               
-              <label for="db-port">Port</label>
+              <label for="db-port">{{ t.port }}</label>
               <input type="text" id="db-port" v-model="dbPort" placeholder="5432 / 3306" @input="saveDBCredentials">
               
-              <label for="db-user">Username</label>
+              <label for="db-user">{{ t.user }}</label>
               <input type="text" id="db-user" v-model="dbUser" placeholder="postgres" @input="saveDBCredentials">
               
-              <label for="db-pass">Password</label>
+              <label for="db-pass">{{ t.pass }}</label>
               <input type="password" id="db-pass" v-model="dbPass" placeholder="******" autocomplete="current-password" @input="saveDBCredentials">
               
-              <label for="db-name">Database Name</label>
+              <label for="db-name">{{ t.dbName }}</label>
               <input type="text" id="db-name" v-model="dbName" placeholder="my_db" @input="saveDBCredentials">
               
-              <label for="db-uri">Or Connection URI</label>
+              <label for="db-uri">{{ t.connURI }}</label>
               <input type="text" id="db-uri" v-model="dbConnectionURI" placeholder="postgresql://user:pass@host:port/db" @input="saveDBCredentials">
             </div>
           </div>
@@ -83,7 +94,7 @@
       <!-- Collapsible Settings to reduce clutter -->
       <div class="sidebar-section">
         <details class="config-details">
-          <summary class="config-summary">AI API Configurations</summary>
+          <summary class="config-summary">{{ t.aiConfig }}</summary>
           <div class="config-details-content">
             <div class="config-tabs">
               <button 
@@ -114,7 +125,7 @@
                 autocomplete="current-password"
                 @input="saveKeys"
               >
-              <label for="gemini-model">Model</label>
+              <label for="gemini-model">{{ t.model }}</label>
               <select id="gemini-model" v-model="geminiModel">
                 <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
                 <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
@@ -131,7 +142,7 @@
                 autocomplete="current-password"
                 @input="saveKeys"
               >
-              <label for="openai-model">Model</label>
+              <label for="openai-model">{{ t.model }}</label>
               <select id="openai-model" v-model="openaiModel">
                 <option value="gpt-4o-mini">gpt-4o-mini</option>
                 <option value="gpt-4o">gpt-4o</option>
@@ -160,12 +171,12 @@
       <!-- Top Bar -->
       <header class="top-bar">
         <div class="header-title">
-          <h2>Workspace</h2>
+          <h2>{{ t.workspace }}</h2>
           <span class="db-badge">{{ dbBadgeText }}</span>
         </div>
         <div class="header-actions">
           <button type="button" class="btn btn-primary" @click="analyzeQuery">
-            Analyze Query
+            {{ t.analyzeQuery }}
           </button>
         </div>
       </header>
@@ -174,16 +185,16 @@
         <!-- Input Panel -->
         <section class="panel input-panel">
           <div class="panel-header">
-            <h3>Query & Plan Input</h3>
+            <h3>{{ t.queryPlanInput }}</h3>
           </div>
           <div class="panel-body">
             <div class="editor-container">
-              <label>SQL Query <span class="required">*</span></label>
+              <label>{{ t.sqlQuery }} <span class="required">*</span></label>
               <!-- Monaco Editor Container -->
               <div id="sql-editor" class="monaco-editor-container"></div>
             </div>
             <div class="editor-container">
-              <label>Execution Plan / EXPLAIN Output</label>
+              <label>{{ t.explainOutput }}</label>
               <!-- Monaco Editor Container -->
               <div id="explain-editor" class="monaco-editor-container"></div>
             </div>
@@ -200,7 +211,7 @@
                 :class="{ active: currentTab === 'tab-overview' }" 
                 @click="selectTab('tab-overview')"
               >
-                Ringkasan
+                {{ t.tabOverview }}
               </button>
               <button 
                 type="button" 
@@ -208,7 +219,7 @@
                 :class="{ active: currentTab === 'tab-issues' }" 
                 @click="selectTab('tab-issues')"
               >
-                Masalah
+                {{ t.tabIssues }}
               </button>
               <button 
                 type="button" 
@@ -216,7 +227,7 @@
                 :class="{ active: currentTab === 'tab-plan' }" 
                 @click="selectTab('tab-plan')"
               >
-                Plan
+                {{ t.tabPlan }}
               </button>
               <button 
                 type="button" 
@@ -224,7 +235,7 @@
                 :class="{ active: currentTab === 'tab-indexes' }" 
                 @click="selectTab('tab-indexes')"
               >
-                Index
+                {{ t.tabIndexes }}
               </button>
               <button 
                 type="button" 
@@ -232,7 +243,7 @@
                 :class="{ active: currentTab === 'tab-optimized' }" 
                 @click="selectTab('tab-optimized')"
               >
-                Optimasi
+                {{ t.tabOptimized }}
               </button>
             </div>
           </div>
@@ -248,11 +259,11 @@
             <div v-show="currentTab === 'tab-overview'" class="tab-content">
               <div class="overview-grid">
                 <div class="score-card">
-                  <h4>Skor Performa</h4>
+                  <h4>{{ t.perfScore }}</h4>
                   <div class="score-display">
                     <div class="score-number">{{ results.score !== null ? results.score : '-' }}</div>
                     <div class="score-label" :style="{ color: results.scoreColor }">
-                      {{ results.scoreDesc || 'Kirim query untuk dianalisis' }}
+                      {{ results.scoreDesc || t.scoreHelpText }}
                     </div>
                   </div>
                   <div class="score-bar-container">
@@ -267,24 +278,24 @@
                 </div>
                 
                 <div class="quick-summary-card">
-                  <h4>Ringkasan Query</h4>
+                  <h4>{{ t.querySummary }}</h4>
                   <div class="summary-details" v-html="results.summaryHTML"></div>
                 </div>
               </div>
               
               <div class="performance-estimates">
-                <h4>Estimasi Performa Berdasarkan Skala Data</h4>
+                <h4>{{ t.perfEstimates }}</h4>
                 <div class="estimate-cards">
                   <div class="est-card">
-                    <h5>Data Kecil</h5>
+                    <h5>{{ t.scaleSmall }}</h5>
                     <p class="est-desc">{{ results.estSmallText }}</p>
                   </div>
                   <div class="est-card">
-                    <h5>Data Menengah</h5>
+                    <h5>{{ t.scaleMed }}</h5>
                     <p class="est-desc">{{ results.estMedText }}</p>
                   </div>
                   <div class="est-card">
-                    <h5>Data Besar</h5>
+                    <h5>{{ t.scaleLarge }}</h5>
                     <p class="est-desc">{{ results.estLargeText }}</p>
                   </div>
                 </div>
@@ -295,7 +306,7 @@
             <div v-show="currentTab === 'tab-issues'" class="tab-content">
               <div class="issues-container">
                 <div v-if="results.issues.length === 0" class="placeholder-text">
-                  Analisis query kamu terlebih dahulu untuk melihat masalah performa.
+                  {{ t.placeholderAnalyze }}
                 </div>
                 <div 
                   v-else 
@@ -309,7 +320,7 @@
                   </div>
                   <div class="issue-desc">{{ issue.desc }}</div>
                   <div class="issue-why">
-                    <strong>Kenapa memengaruhi performa:</strong> {{ issue.why }}
+                    <strong>Kenapa memengaruhi performa / Why this affects performance:</strong> {{ issue.why }}
                   </div>
                 </div>
               </div>
@@ -319,14 +330,14 @@
             <div v-show="currentTab === 'tab-plan'" class="tab-content">
               <div class="plan-visualizer-container">
                 <div class="plan-header-row">
-                  <h4>Visualisasi Execution Plan</h4>
+                  <h4>{{ t.visualExplain }}</h4>
                   <span class="badge">{{ results.planSourceBadge }}</span>
                 </div>
                 
                 <!-- Tree render -->
                 <div class="plan-tree">
                   <div v-if="results.visualNodes.length === 0" class="placeholder-text">
-                    Masukkan hasil EXPLAIN/EXPLAIN ANALYZE di panel kiri untuk memvisualisasikan.
+                    {{ t.placeholderPlan }}
                   </div>
                   <div v-else>
                     <div 
@@ -369,7 +380,7 @@
                 </div>
                 
                 <div class="plan-raw-details mt-4">
-                  <h4>Penjelasan Detail Execution Plan</h4>
+                  <h4>{{ t.detailedExplain }}</h4>
                   <div v-html="results.planExplainHTML"></div>
                 </div>
               </div>
@@ -379,7 +390,7 @@
             <div v-show="currentTab === 'tab-indexes'" class="tab-content">
               <div class="indexes-container">
                 <div v-if="results.indexes.length === 0" class="placeholder-text">
-                  Rekomendasi index akan muncul setelah query dianalisis.
+                  {{ t.placeholderIndex }}
                 </div>
                 <div 
                   v-else 
@@ -389,7 +400,7 @@
                 >
                   <div class="index-card-header">
                     <h5>{{ rec.name }}</h5>
-                    <span class="badge success">Recommended</span>
+                    <span class="badge success">{{ t.recommendLabel }}</span>
                   </div>
                   <div class="index-card-body">
                     <div class="index-sql-wrapper">
@@ -404,14 +415,14 @@
                     </div>
                     <div class="index-impact-grid">
                       <div class="impact-subcard">
-                        <h6>Alasan</h6>
+                        <h6>{{ t.reasonLabel }}</h6>
                         <p>{{ rec.reason }}</p>
                       </div>
                       <div class="impact-subcard">
-                        <h6>Dampak Positif / Negatif</h6>
+                        <h6>{{ t.impactLabel }}</h6>
                         <p>
-                          <strong>Positif:</strong> {{ rec.positive }}<br>
-                          <strong>Negatif:</strong> {{ rec.negative }}
+                          <strong>{{ t.positiveLabel }}:</strong> {{ rec.positive }}<br>
+                          <strong>{{ t.negativeLabel }}:</strong> {{ rec.negative }}
                         </p>
                       </div>
                     </div>
@@ -427,7 +438,7 @@
                 <div id="monaco-diff-editor" class="monaco-diff-container"></div>
                 
                 <div class="optimization-notes mt-4">
-                  <h4>Catatan Perubahan & Alasan Optimasi</h4>
+                  <h4>{{ t.optReasons }}</h4>
                   <div v-html="results.optimizationNotesHTML"></div>
                 </div>
               </div>
@@ -441,6 +452,17 @@
 
 <script setup>
 import { ref, computed, reactive, onMounted } from 'vue'
+
+// Browser Detection (Default Language)
+const detectBrowserLanguage = () => {
+  if (typeof navigator !== 'undefined') {
+    const lang = navigator.language || navigator.userLanguage || 'en'
+    return lang.toLowerCase().startsWith('id') ? 'id' : 'en'
+  }
+  return 'en'
+}
+
+const currentLang = ref('en')
 
 // State
 const dbEngine = ref('postgresql')
@@ -472,22 +494,164 @@ const sampleBtnTexts = reactive({
 
 const copyBtnTexts = reactive({})
 
+// Localization System
+const translations = {
+  en: {
+    quickSamples: 'Quick Samples',
+    dbEngine: 'Database Engine',
+    directDB: 'Direct DB Connection',
+    enableAuto: 'Enable Auto-Explain',
+    host: 'Host',
+    port: 'Port',
+    user: 'Username',
+    pass: 'Password',
+    dbName: 'Database Name',
+    connURI: 'Or Connection URI',
+    aiConfig: 'AI API Configurations',
+    model: 'Model',
+    keyStatusOffline: 'Offline Heuristic Only',
+    keyStatusConnected: 'Connected via',
+    workspace: 'Workspace',
+    analyzeQuery: 'Analyze Query',
+    queryPlanInput: 'Query & Plan Input',
+    sqlQuery: 'SQL Query',
+    explainOutput: 'Execution Plan / EXPLAIN Output',
+    tabOverview: 'Overview',
+    tabIssues: 'Issues',
+    tabPlan: 'Plan',
+    tabIndexes: 'Index',
+    tabOptimized: 'Optimized',
+    perfScore: 'Performance Score',
+    scoreDescGood: 'Excellent (Optimized)',
+    scoreDescMed: 'Moderate (Needs Improvement)',
+    scoreDescBad: 'Poor (High Latency Risk)',
+    scoreHelpText: 'Submit query to analyze',
+    querySummary: 'Query Summary',
+    perfEstimates: 'Performance Estimates Based on Data Scale',
+    scaleSmall: 'Small Data Scale',
+    scaleMed: 'Medium Data Scale',
+    scaleLarge: 'Large Data Scale',
+    loadingExplain: 'Connecting to database and executing EXPLAIN...',
+    loadingEngine: 'Connecting to Analysis Engine...',
+    loadingAI: 'AI is dissecting your Query & Execution Plan...',
+    loadingHeuristics: 'Running Offline Heuristic Analysis...',
+    placeholderAnalyze: 'Analyze your query first to see performance issues.',
+    placeholderPlan: 'Paste EXPLAIN/EXPLAIN ANALYZE results in the left panel to visualize execution plan tree.',
+    placeholderIndex: 'Index recommendations will appear after query is analyzed.',
+    placeholderNotes: 'Analyze query to see optimization reasons.',
+    placeholderSummary: 'Analyze your query first.',
+    placeholderNoPlan: 'No plan data.',
+    pastedPlanBadge: 'Pasted Execution Plan',
+    estimatePlanBadge: 'AI Estimate Only',
+    heuristicPlanBadge: 'Heuristic Parsed Plan',
+    noPlanProvidedBadge: 'No Plan Provided',
+    reasonLabel: 'Reason',
+    impactLabel: 'Positive / Negative Impact',
+    positiveLabel: 'Positive',
+    negativeLabel: 'Negative',
+    queryAsli: 'Original Query',
+    queryOptimasi: 'Optimized Query',
+    recomChanges: 'Recommended Changes:',
+    changesReplaceStar: 'Replace SELECT * with specific columns',
+    changesAnsiJoin: 'Replace Implicit Joins with ANSI-92 JOINs',
+    changesWhereFunc: 'Avoid using functions on WHERE columns',
+    changesLeadingLike: 'Avoid leading wildcards in LIKE patterns',
+    recommendLabel: 'Recommended',
+    sqlRequired: 'Please input a SQL query first.',
+    dbConnFailed: 'Database connection failed:',
+    dbExplainFailed: 'Failed to fetch database explain plan:',
+    visualExplain: 'Visualized Execution Plan',
+    detailedExplain: 'Detailed Execution Plan Explanation',
+    optReasons: 'Change Logs & Optimization Reasons'
+  },
+  id: {
+    quickSamples: 'Sampul Cepat / Samples',
+    dbEngine: 'Database Engine',
+    directDB: 'Koneksi DB Langsung',
+    enableAuto: 'Aktifkan Auto-Explain',
+    host: 'Host',
+    port: 'Port',
+    user: 'Username',
+    pass: 'Password',
+    dbName: 'Nama Database',
+    connURI: 'Or Connection URI',
+    aiConfig: 'Konfigurasi AI API',
+    model: 'Model',
+    keyStatusOffline: 'Hanya Heuristik Offline',
+    keyStatusConnected: 'Terhubung via',
+    workspace: 'Workspace',
+    analyzeQuery: 'Analyze Query',
+    queryPlanInput: 'Input Query & Plan',
+    sqlQuery: 'Query SQL',
+    explainOutput: 'Execution Plan / Output EXPLAIN',
+    tabOverview: 'Ringkasan',
+    tabIssues: 'Masalah',
+    tabPlan: 'Plan',
+    tabIndexes: 'Index',
+    tabOptimized: 'Optimasi',
+    perfScore: 'Skor Performa',
+    scoreDescGood: 'Sangat Baik (Optimized)',
+    scoreDescMed: 'Sedang (Butuh Perbaikan)',
+    scoreDescBad: 'Buruk (Bahaya Latensi Tinggi)',
+    scoreHelpText: 'Kirim query untuk dianalisis',
+    querySummary: 'Ringkasan Query',
+    perfEstimates: 'Estimasi Performa Berdasarkan Skala Data',
+    scaleSmall: 'Skala Data Kecil',
+    scaleMed: 'Skala Data Menengah',
+    scaleLarge: 'Skala Data Besar',
+    loadingExplain: 'Menghubungkan ke database dan mengambil execution plan...',
+    loadingEngine: 'Menghubungkan ke Engine Analisis...',
+    loadingAI: 'AI sedang membedah Query & Execution Plan kamu...',
+    loadingHeuristics: 'Menjalankan Analisis Heuristik Offline...',
+    placeholderAnalyze: 'Analisis query kamu terlebih dahulu untuk melihat masalah performa.',
+    placeholderPlan: 'Masukkan hasil EXPLAIN/EXPLAIN ANALYZE di panel kiri untuk memvisualisasikan plan.',
+    placeholderIndex: 'Rekomendasi index akan muncul setelah query dianalisis.',
+    placeholderNotes: 'Analisis query untuk melihat alasan optimasi.',
+    placeholderSummary: 'Analisis query kamu terlebih dahulu.',
+    placeholderNoPlan: 'Tidak ada data plan.',
+    pastedPlanBadge: 'Hasil Copy-Paste Plan',
+    estimatePlanBadge: 'Estimasi AI Saja',
+    heuristicPlanBadge: 'Plan Hasil Parsing Heuristik',
+    noPlanProvidedBadge: 'Tidak Ada Plan',
+    reasonLabel: 'Alasan',
+    impactLabel: 'Dampak Positif / Negatif',
+    positiveLabel: 'Positif',
+    negativeLabel: 'Negatif',
+    queryAsli: 'Query Asli',
+    queryOptimasi: 'Query Optimasi',
+    recomChanges: 'Perubahan yang Direkomendasikan:',
+    changesReplaceStar: 'Mengganti SELECT * dengan Kolom Spesifik',
+    changesAnsiJoin: 'Mengganti Koma dengan ANSI-92 INNER JOIN',
+    changesWhereFunc: 'Mencegah Pemakaian Fungsi pada Kolom WHERE',
+    changesLeadingLike: 'Menghindari Leading Wildcard pada LIKE',
+    recommendLabel: 'Direkomendasikan',
+    sqlRequired: 'Silakan masukkan query SQL terlebih dahulu.',
+    dbConnFailed: 'Koneksi database gagal:',
+    dbExplainFailed: 'Gagal mengambil Explain Plan otomatis:',
+    visualExplain: 'Visualisasi Execution Plan',
+    detailedExplain: 'Penjelasan Detail Execution Plan',
+    optReasons: 'Catatan Perubahan & Alasan Optimasi'
+  }
+}
+
+const t = computed(() => translations[currentLang.value])
+
 const results = reactive({
   score: null,
   scoreDesc: '',
   scoreColor: '',
-  summaryHTML: '<p class="placeholder-text">Analisis query kamu terlebih dahulu.</p>',
+  summaryHTML: '',
   estSmallText: '-',
   estMedText: '-',
   estLargeText: '-',
   issues: [],
-  planSourceBadge: 'No Plan Loaded',
+  planSourceBadge: '',
   visualNodes: [],
-  planExplainHTML: '<p class="placeholder-text">Tidak ada data plan.</p>',
+  planExplainHTML: '',
   indexes: [],
   originalQuery: '-- Query asli kamu akan muncul di sini',
   optimizedQuery: '-- Query hasil optimasi akan muncul di sini',
-  optimizationNotesHTML: '<p class="placeholder-text">Analisis query untuk melihat alasan optimasi.</p>'
+  optimizationNotesHTML: ''
 })
 
 // Monaco Editor Instances
@@ -519,12 +683,26 @@ const keyStatusText = computed(() => {
     ? geminiKey.value.trim().length > 0 
     : openaiKey.value.trim().length > 0
   return hasKey 
-    ? `Connected via ${activeProvider.value === 'gemini' ? 'Gemini' : 'OpenAI'}`
-    : 'Offline Heuristic Only'
+    ? `${t.value.keyStatusConnected} ${activeProvider.value === 'gemini' ? 'Gemini' : 'OpenAI'}`
+    : t.value.keyStatusOffline
 })
 
 // Life Cycle Hooks
 onMounted(() => {
+  // Set detected language
+  const savedLang = localStorage.getItem('qs_lang')
+  if (savedLang) {
+    currentLang.value = savedLang
+  } else {
+    currentLang.value = detectBrowserLanguage()
+  }
+
+  // Set placeholders based on language
+  results.summaryHTML = `<p class="placeholder-text">${t.value.placeholderSummary}</p>`
+  results.planExplainHTML = `<p class="placeholder-text">${t.value.placeholderNoPlan}</p>`
+  results.optimizationNotesHTML = `<p class="placeholder-text">${t.value.placeholderNotes}</p>`
+  results.planSourceBadge = t.value.noPlanProvidedBadge
+
   // Load AI Keys
   if (localStorage.getItem('qs_gemini_key')) {
     geminiKey.value = localStorage.getItem('qs_gemini_key')
@@ -638,6 +816,23 @@ const updateDiffModels = () => {
 }
 
 // Methods
+const saveLanguagePreference = () => {
+  localStorage.setItem('qs_lang', currentLang.value)
+  // Refresh placeholders dynamically on change
+  if (results.score === null) {
+    results.summaryHTML = `<p class="placeholder-text">${t.value.placeholderSummary}</p>`
+    results.planExplainHTML = `<p class="placeholder-text">${t.value.placeholderNoPlan}</p>`
+    results.optimizationNotesHTML = `<p class="placeholder-text">${t.value.placeholderNotes}</p>`
+    results.planSourceBadge = t.value.noPlanProvidedBadge
+  } else {
+    // Re-trigger visual badges based on language
+    results.planSourceBadge = explainPlan.value.trim() 
+      ? (directConnectEnabled.value ? t.value.pastedPlanBadge : t.value.pastedPlanBadge)
+      : t.value.estimatePlanBadge
+    updateScoreCardValues(results.score)
+  }
+}
+
 const saveKeys = () => {
   localStorage.setItem('qs_gemini_key', geminiKey.value.trim())
   localStorage.setItem('qs_openai_key', openaiKey.value.trim())
@@ -725,7 +920,7 @@ const analyzeQuery = async () => {
   let explain = explainPlan.value.trim()
   
   if (!sql) {
-    alert('Silakan masukkan query SQL terlebih dahulu.')
+    alert(t.value.sqlRequired)
     return
   }
 
@@ -733,7 +928,7 @@ const analyzeQuery = async () => {
   
   // Direct Explain Connection logic (Fase 3)
   if (directConnectEnabled.value) {
-    loadingText.value = 'Connecting to database and executing EXPLAIN...'
+    loadingText.value = t.value.loadingExplain
     try {
       const response = await fetch('/api/explain', {
         method: 'POST',
@@ -756,18 +951,18 @@ const analyzeQuery = async () => {
         explainPlan.value = data.plan
         if (explainEditor) explainEditor.setValue(data.plan)
       } else {
-        alert(`Failed to fetch database explain plan: ${data.message}`)
+        alert(`${t.value.dbExplainFailed} ${data.message}`)
         loading.value = false
         return
       }
     } catch (e) {
-      alert(`Database connection failed: ${e.message}`)
+      alert(`${t.value.dbConnFailed} ${e.message}`)
       loading.value = false
       return
     }
   }
 
-  loadingText.value = 'Menghubungkan ke Engine Analisis...'
+  loadingText.value = t.value.loadingEngine
 
   const hasKey = activeProvider.value === 'gemini' 
     ? geminiKey.value.trim().length > 0 
@@ -775,16 +970,16 @@ const analyzeQuery = async () => {
 
   try {
     if (hasKey) {
-      loadingText.value = 'AI sedang membedah Query & Execution Plan kamu...'
+      loadingText.value = t.value.loadingAI
       await runAIAnalysis(sql, explain, dbEngine.value)
     } else {
-      loadingText.value = 'Menjalankan Analisis Heuristik Offline...'
+      loadingText.value = t.value.loadingHeuristics
       await new Promise(resolve => setTimeout(resolve, 800))
       runOfflineAnalysis(sql, explain, dbEngine.value)
     }
   } catch (error) {
     console.error(error)
-    alert(`Gagal menganalisis query: ${error.message}`)
+    alert(`Failed to analyze: ${error.message}`)
   } finally {
     loading.value = false
   }
@@ -795,11 +990,13 @@ const runAIAnalysis = async (sql, explain, engine) => {
   const provider = activeProvider.value
   const key = provider === 'gemini' ? geminiKey.value.trim() : openaiKey.value.trim()
   const model = provider === 'gemini' ? geminiModel.value : openaiModel.value
+  const targetLanguageText = currentLang.value === 'id' ? 'Bahasa Indonesia' : 'English'
 
   const prompt = `Anda adalah AI SQL Performance Engineer yang ahli dalam optimasi query SQL untuk PostgreSQL, MySQL, SQL Server, SQLite, dan Oracle.
 Tugas utama Anda adalah menganalisis query SQL dan memberikan rekomendasi optimasi tanpa mengubah hasil atau logika bisnis dari query tersebut.
 
 Database Engine yang digunakan: ${engine}
+Tulis laporan Anda sepenuhnya menggunakan: ${targetLanguageText}
 
 === SQL QUERY ===
 ${sql}
@@ -808,32 +1005,32 @@ ${sql}
 ${explain || 'Tidak ada execution plan yang disediakan.'}
 
 Instruksi Output:
-Analisis query tersebut dan berikan tanggapan menggunakan Bahasa Indonesia dengan format markdown persis seperti berikut ini. Pastikan Anda menyertakan pembagi header '#' persis di bawah agar sistem kami dapat mem-parsing data Anda dengan benar. Jangan menambahkan pengantar meta atau penutup di luar struktur ini:
+Analisis query tersebut dan berikan tanggapan menggunakan format markdown persis seperti berikut ini. Pastikan Anda menyertakan pembagi header '#' persis di bawah agar sistem kami dapat mem-parsing data Anda dengan benar. Jangan menambahkan pengantar meta atau penutup di luar struktur ini:
 
-# Ringkasan Query
-[Berikan deskripsi singkat tentang tujuan query, tabel yang digunakan, jenis JOIN, kondisi WHERE, GROUP BY, ORDER BY, subquery/CTE, dan fungsi agregasi yang dipakai.]
+# Query Summary
+[Berikan deskripsi singkat tentang tujuan query, tabel yang digunakan, dll.]
 
-# Masalah Performa
-[Jelaskan masalah performa yang terdeteksi, seperti Full Table Scan, SELECT *, unindexed join, fungsi pada kolom index, LIKE dengan wildcard di depan, nested subquery, DISTINCT yang mubazir, dll. Jelaskan mengapa masing-masing memengaruhi performa.]
+# Performance Issues
+[Jelaskan masalah performa yang terdeteksi secara mendalam.]
 
-# Penjelasan Execution Plan
-[Jika pengguna memberikan execution plan, jelaskan setiap node, operasi termahal, estimated/actual cost/time/rows, dan scan/join type yang digunakan. Jika tidak ada, sebutkan estimasi scan yang kemungkinan dilakukan database engine.]
+# Execution Plan Explanation
+[Jelaskan setiap node plan, estimated/actual cost, dan tipe scan.]
 
-# Rekomendasi Index
-[Berikan rekomendasi index. Untuk setiap index, tampilkan perintah SQL pembuatannya, alasan, query yang terbantu, dampak performa, dan dampak negatif terhadap write performance / storage.]
+# Index Recommendations
+[Berikan rekomendasi index. Untuk setiap index, tampilkan perintah SQL pembuatannya, alasan, dll.]
 Contoh format:
 \`\`\`sql
 CREATE INDEX idx_orders_customer_date ON orders(customer_id, created_at);
 \`\`\`
-Alasan: ...
-Dampak Positif: ...
-Dampak Negatif: ...
+Alasan / Reason: ...
+Dampak Positif / Positive: ...
+Dampak Negatif / Negative: ...
 
-# Optimasi Query
+# Query Optimization
 [Berikan versi query SQL yang lebih efisien di dalam block SQL. Jelaskan alasan logis untuk setiap optimasi yang Anda buat.]
 
-# Skor Performa
-[Berikan skor 1 (Sangat Baik) sampai 10 (Sangat Buruk) dalam format 'Skor Performa: X'. Berikan penjelasan terpisah untuk performa pada Data Kecil, Data Menengah, dan Data Besar.]`
+# Performance Score
+[Berikan skor 1 sampai 10 dalam format 'Skor Performa: X' atau 'Performance Score: X'. Berikan penjelasan terpisah untuk performa pada Data Kecil, Data Menengah, dan Data Besar.]`
 
   let resultText = ''
 
@@ -895,47 +1092,47 @@ const parseAndPopulateAIResponse = (mdText, originalSql, explain, engine) => {
     score: ''
   }
 
-  const parts = mdText.split(/(?=# (?:Ringkasan Query|Masalah Performa|Penjelasan Execution Plan|Rekomendasi Index|Optimasi Query|Skor Performa))/i)
+  const parts = mdText.split(/(?=# (?:Query Summary|Ringkasan Query|Performance Issues|Masalah Performa|Execution Plan Explanation|Penjelasan Execution Plan|Index Recommendations|Rekomendasi Index|Query Optimization|Optimasi Query|Performance Score|Skor Performa))/i)
   
   parts.forEach(part => {
     const trimmed = part.trim()
-    if (trimmed.startsWith('# Ringkasan Query')) {
-      sections.summary = trimmed.replace('# Ringkasan Query', '').trim()
-    } else if (trimmed.startsWith('# Masalah Performa')) {
-      sections.issues = trimmed.replace('# Masalah Performa', '').trim()
-    } else if (trimmed.startsWith('# Penjelasan Execution Plan')) {
-      sections.plan = trimmed.replace('# Penjelasan Execution Plan', '').trim()
-    } else if (trimmed.startsWith('# Rekomendasi Index')) {
-      sections.indexes = trimmed.replace('# Rekomendasi Index', '').trim()
-    } else if (trimmed.startsWith('# Optimasi Query')) {
-      sections.optimized = trimmed.replace('# Optimasi Query', '').trim()
-    } else if (trimmed.startsWith('# Skor Performa')) {
-      sections.score = trimmed.replace('# Skor Performa', '').trim()
+    if (trimmed.startsWith('# Query Summary') || trimmed.startsWith('# Ringkasan Query')) {
+      sections.summary = trimmed.replace(/# (?:Query Summary|Ringkasan Query)/i, '').trim()
+    } else if (trimmed.startsWith('# Performance Issues') || trimmed.startsWith('# Masalah Performa')) {
+      sections.issues = trimmed.replace(/# (?:Performance Issues|Masalah Performa)/i, '').trim()
+    } else if (trimmed.startsWith('# Execution Plan Explanation') || trimmed.startsWith('# Penjelasan Execution Plan')) {
+      sections.plan = trimmed.replace(/# (?:Execution Plan Explanation|Penjelasan Execution Plan)/i, '').trim()
+    } else if (trimmed.startsWith('# Index Recommendations') || trimmed.startsWith('# Rekomendasi Index')) {
+      sections.indexes = trimmed.replace(/# (?:Index Recommendations|Rekomendasi Index)/i, '').trim()
+    } else if (trimmed.startsWith('# Query Optimization') || trimmed.startsWith('# Optimasi Query')) {
+      sections.optimized = trimmed.replace(/# (?:Query Optimization|Optimasi Query)/i, '').trim()
+    } else if (trimmed.startsWith('# Performance Score') || trimmed.startsWith('# Skor Performa')) {
+      sections.score = trimmed.replace(/# (?:Performance Score|Skor Performa)/i, '').trim()
     }
   })
 
   // Fill structure
-  results.summaryHTML = formatMarkdownToHTML(sections.summary || 'AI tidak menghasilkan ringkasan.')
+  results.summaryHTML = formatMarkdownToHTML(sections.summary || 'No summary was generated by the AI.')
   results.issues = parseIssuesFromMarkdown(sections.issues)
   results.indexes = parseIndexesFromMarkdown(sections.indexes)
   results.originalQuery = originalSql
 
   // Parse Score
   let scoreNum = 5
-  const scoreMatch = sections.score.match(/Skor\s+Performa:\s*(\d+)/i) || mdText.match(/Skor\s+Performa:\s*(\d+)/i)
+  const scoreMatch = sections.score.match(/(?:Skor\s+Performa|Performance\s+Score):\s*(\d+)/i) || mdText.match(/(?:Skor\s+Performa|Performance\s+Score):\s*(\d+)/i)
   if (scoreMatch) {
     scoreNum = parseInt(scoreMatch[1], 10)
   }
   updateScoreCardValues(scoreNum, sections.score)
 
   // Plan Visualizer
-  results.planSourceBadge = explain ? 'Pasted Execution Plan' : 'AI Estimate Only'
+  results.planSourceBadge = explain ? t.value.pastedPlanBadge : t.value.estimatePlanBadge
   if (explain) {
     results.visualNodes = parseVisualPlanNodes(explain, engine)
   } else {
     results.visualNodes = []
   }
-  results.planExplainHTML = formatMarkdownToHTML(sections.plan || 'Tidak ada detail execution plan.')
+  results.planExplainHTML = formatMarkdownToHTML(sections.plan || 'No detailed plan analysis.')
 
   // Optimized query extraction
   const sqlBlockRegex = /```sql([\s\S]*?)```/i
@@ -943,10 +1140,10 @@ const parseAndPopulateAIResponse = (mdText, originalSql, explain, engine) => {
   if (match) {
     results.optimizedQuery = match[1].trim()
     const remainingNotes = sections.optimized.replace(sqlBlockRegex, '').trim()
-    results.optimizationNotesHTML = formatMarkdownToHTML(remainingNotes || 'Query dioptimasi demi efisiensi.')
+    results.optimizationNotesHTML = formatMarkdownToHTML(remainingNotes || 'Optimized query structure.')
   } else {
     results.optimizedQuery = originalSql
-    results.optimizationNotesHTML = formatMarkdownToHTML(sections.optimized || 'Query dioptimasi demi efisiensi.')
+    results.optimizationNotesHTML = formatMarkdownToHTML(sections.optimized || 'Optimized query structure.')
   }
 
   // Update diff models
@@ -962,13 +1159,13 @@ const updateScoreCardValues = (score, scoreText = '') => {
   let desc = ''
   let color = ''
   if (score <= 3) {
-    desc = 'Sangat Baik (Optimized)'
+    desc = t.value.scoreDescGood
     color = '#007acc'
   } else if (score <= 6) {
-    desc = 'Sedang (Butuh Perbaikan)'
+    desc = t.value.scoreDescMed
     color = '#cca700'
   } else {
-    desc = 'Buruk (Bahaya Latensi Tinggi)'
+    desc = t.value.scoreDescBad
     color = '#f44747'
   }
   
@@ -976,13 +1173,17 @@ const updateScoreCardValues = (score, scoreText = '') => {
   results.scoreColor = color
 
   if (scoreText) {
-    const smallMatch = scoreText.match(/Data Kecil:?\s*([^\n]+)/i) || []
-    const medMatch = scoreText.match(/Data Menengah:?\s*([^\n]+)/i) || []
-    const largeMatch = scoreText.match(/Data Besar:?\s*([^\n]+)/i) || []
+    const smallMatch = scoreText.match(/(?:Data Kecil|Small Data Scale):?\s*([^\n]+)/i) || []
+    const medMatch = scoreText.match(/(?:Data Menengah|Medium Data Scale):?\s*([^\n]+)/i) || []
+    const largeMatch = scoreText.match(/(?:Data Besar|Large Data Scale):?\s*([^\n]+)/i) || []
 
-    results.estSmallText = smallMatch[1] || (score <= 3 ? 'Sangat cepat (< 5ms). Beban minimal.' : 'Cepat (< 20ms) karena volume data kecil masih bisa tertampung memori.')
-    results.estMedText = medMatch[1] || (score <= 3 ? 'Cepat (< 50ms) berkat index.' : 'Latensi terasa meningkat (100ms - 500ms). Full table scan mulai membebani disk.')
-    results.estLargeText = largeMatch[1] || (score <= 3 ? 'Tetap stabil (< 200ms).' : 'Sangat lambat (> 2 detik). Resiko CPU spikes dan timeout pada database.')
+    results.estSmallText = smallMatch[1] || (score <= 3 ? (currentLang.value === 'id' ? 'Sangat cepat (< 5ms). Beban minimal.' : 'Very fast (< 5ms). Minimal load.') : (currentLang.value === 'id' ? 'Cepat (< 20ms) karena volume data kecil masih bisa tertampung memori.' : 'Fast (< 20ms) as small data fits in memory buffer.'))
+    results.estMedText = medMatch[1] || (score <= 3 ? (currentLang.value === 'id' ? 'Cepat (< 50ms) berkat index.' : 'Fast (< 50ms) using indexes.') : (currentLang.value === 'id' ? 'Latensi terasa meningkat (100ms - 500ms). Full table scan mulai membebani disk.' : 'Increased latency (100ms - 500ms). Table scans start loading disks.'))
+    results.estLargeText = largeMatch[1] || (score <= 3 ? (currentLang.value === 'id' ? 'Tetap stabil (< 200ms).' : 'Remains stable (< 200ms).') : (currentLang.value === 'id' ? 'Sangat lambat (> 2 detik). Resiko CPU spikes dan timeout pada database.' : 'Very slow (> 2s). High risk of CPU spikes and gateway timeouts.'))
+  } else {
+    results.estSmallText = score <= 3 ? (currentLang.value === 'id' ? 'Sangat cepat (< 5ms).' : 'Very fast (< 5ms).') : (currentLang.value === 'id' ? 'Cepat (< 20ms).' : 'Fast (< 20ms).')
+    results.estMedText = score <= 3 ? (currentLang.value === 'id' ? 'Cepat (< 50ms).' : 'Fast (< 50ms).') : (currentLang.value === 'id' ? 'Sedang (100ms - 500ms).' : 'Moderate (100ms - 500ms).')
+    results.estLargeText = score <= 3 ? (currentLang.value === 'id' ? 'Stabil (< 200ms).' : 'Stable (< 200ms).') : (currentLang.value === 'id' ? 'Lambat (> 2 detik).' : 'Slow (> 2s).')
   }
 }
 
@@ -996,9 +1197,9 @@ const runOfflineAnalysis = (sql, explain, engine) => {
   if (/\bselect\s+\*\b/.test(lowerSql)) {
     issues.push({
       severity: 'medium',
-      title: 'Penggunaan SELECT *',
-      desc: 'Mengambil semua kolom dari tabel meskipun tidak semuanya diperlukan.',
-      why: 'SELECT * memperlambat query karena meningkatkan beban I/O jaringan, menghalangi database untuk memanfaatkan Index-Only Scan, dan mengonsumsi memori lebih besar pada server aplikasi.'
+      title: currentLang.value === 'id' ? 'Penggunaan SELECT *' : 'SELECT * Wildcard Usage',
+      desc: currentLang.value === 'id' ? 'Mengambil semua kolom dari tabel meskipun tidak semuanya diperlukan.' : 'Fetches all columns from tables even if only some are used.',
+      why: currentLang.value === 'id' ? 'SELECT * memperlambat query karena meningkatkan beban I/O jaringan, menghalangi database untuk memanfaatkan Index-Only Scan, dan mengonsumsi memori lebih besar.' : 'SELECT * increases disk/network I/O, prevents Index-Only scans, and inflates memory consumption.'
     })
     score += 2
   }
@@ -1006,9 +1207,9 @@ const runOfflineAnalysis = (sql, explain, engine) => {
   if (/\blike\s+['"]%/.test(lowerSql)) {
     issues.push({
       severity: 'high',
-      title: 'Leading Wildcard pada Clause LIKE',
-      desc: 'Pencarian kata kunci menggunakan pattern awal persen (\'%keyword\').',
-      why: 'Penggunaan wildcard di depan kolom menghalangi database engine untuk menggunakan B-Tree index scan konvensional, sehingga memaksa database untuk melakukan Full Table Scan (atau Sequential Scan) yang sangat lambat pada tabel berukuran besar.'
+      title: currentLang.value === 'id' ? 'Leading Wildcard pada Clause LIKE' : 'Leading Wildcard in LIKE Condition',
+      desc: currentLang.value === 'id' ? 'Pencarian kata kunci menggunakan pattern awal persen (\'%keyword\').' : 'Keyword searches prefixing query with a percentage symbol.',
+      why: currentLang.value === 'id' ? 'Penggunaan wildcard di depan kolom menghalangi database engine untuk menggunakan B-Tree index scan konvensional, sehingga memaksa database untuk melakukan Full Table Scan.' : 'Prefix wildcards bypass traditional B-Tree index scans, forcing high cost sequential full table scans.'
     })
     score += 3
   }
@@ -1017,9 +1218,9 @@ const runOfflineAnalysis = (sql, explain, engine) => {
   if (funcRegex.test(lowerSql)) {
     issues.push({
       severity: 'high',
-      title: 'Fungsi Manipulasi Kolom pada Predicate WHERE',
-      desc: 'Membungkus nama kolom di dalam fungsi (misal: LOWER(column), YEAR(column)).',
-      why: 'Penerapan fungsi pada kolom langsung membatalkan penggunaan index B-Tree standar pada kolom tersebut. Database harus mengevaluasi fungsi untuk setiap baris (Full Table Scan) kecuali jika Anda membuat Functional/Expression Index.'
+      title: currentLang.value === 'id' ? 'Fungsi Manipulasi Kolom pada Predicate WHERE' : 'Column Wrapped Functions in WHERE Clause',
+      desc: currentLang.value === 'id' ? 'Membungkus nama kolom di dalam fungsi (misal: LOWER(column), YEAR(column)).' : 'Modifying column inputs using helper functions inside conditional statements.',
+      why: currentLang.value === 'id' ? 'Penerapan fungsi pada kolom langsung membatalkan penggunaan index B-Tree standar pada kolom tersebut.' : 'Applying scalar functions direct to columns disables index lookups, forcing evaluation checks on every single row.'
     })
     score += 2
   }
@@ -1027,17 +1228,17 @@ const runOfflineAnalysis = (sql, explain, engine) => {
   if (/\bfrom\s+\w+\s*,\s*\w+/.test(lowerSql) && !/\bwhere\b/.test(lowerSql)) {
     issues.push({
       severity: 'high',
-      title: 'Cartesian Join (Cross Join) Tanpa Filter',
-      desc: 'Menggabungkan tabel menggunakan format koma tanpa klausa join atau WHERE.',
-      why: 'Ini akan menghasilkan Cartesian Product (M x N baris), mengonsumsi memori server secara drastis, dan sering kali membuat database kehabisan memori atau mengalami crash.'
+      title: currentLang.value === 'id' ? 'Cartesian Join (Cross Join) Tanpa Filter' : 'Cartesian Join Without Filter Key',
+      desc: currentLang.value === 'id' ? 'Menggabungkan tabel menggunakan format koma tanpa klausa join atau WHERE.' : 'Joining multiple tables via implicit comma spacing without filters.',
+      why: currentLang.value === 'id' ? 'Ini akan menghasilkan Cartesian Product (M x N baris), mengonsumsi memori server secara drastis.' : 'Results in an unrestricted Cartesian Product (M x N rows), bloating query buffers and risking engine crashes.'
     })
     score += 4
   } else if (/\bfrom\s+\w+\s*,\s*\w+/.test(lowerSql)) {
     issues.push({
       severity: 'medium',
-      title: 'Implicit JOIN (Syntax ANSI-89)',
-      desc: 'Menggabungkan tabel di klausa FROM dengan pemisah koma.',
-      why: 'Meskipun optimizer modern dapat menerjemahkannya ke INNER JOIN, penulisan ini sangat rentan terhadap kesalahan ketik (lupa join key) yang berakibat Cartesian Join, serta mengurangi keterbacaan query dibanding ANSI-92 JOIN (JOIN ... ON).'
+      title: currentLang.value === 'id' ? 'Implicit JOIN (Syntax ANSI-89)' : 'Implicit Comma Join (ANSI-89 Syntax)',
+      desc: currentLang.value === 'id' ? 'Menggabungkan tabel di klausa FROM dengan pemisah koma.' : 'Joining databases tables via comma lists inside FROM block.',
+      why: currentLang.value === 'id' ? 'Meskipun optimizer modern dapat menerjemahkannya ke INNER JOIN, penulisan ini sangat rentan terhadap kesalahan ketik.' : 'Prone to typos and missing join criteria which could escalate into an unexpected Cartesian join.'
     })
     score += 1
   }
@@ -1047,9 +1248,9 @@ const runOfflineAnalysis = (sql, explain, engine) => {
     if (offsetVal > 1000) {
       issues.push({
         severity: 'medium',
-        title: 'OFFSET Terlalu Besar',
-        desc: `Query melompati data sebanyak ${offsetVal} baris.`,
-        why: 'OFFSET mengharuskan database memindai semua baris sebelumnya dan membuangnya sebelum mengembalikan baris yang diinginkan. Untuk dataset besar, OFFSET tinggi akan merusak performa. Solusinya adalah Keyset Pagination (Seek Method).'
+        title: currentLang.value === 'id' ? 'OFFSET Terlalu Besar' : 'Extremely High Pagination OFFSET',
+        desc: currentLang.value === 'id' ? `Query melompati data sebanyak ${offsetVal} baris.` : `Query skips ${offsetVal} rows.`,
+        why: currentLang.value === 'id' ? 'OFFSET mengharuskan database memindai semua baris sebelumnya dan membuangnya.' : 'Database has to scan all discarded rows before reaching target offset. Recommended seek keyset paging.'
       })
       score += 2
     }
@@ -1058,9 +1259,9 @@ const runOfflineAnalysis = (sql, explain, engine) => {
   if ((lowerSql.match(/\bselect\b/g) || []).length > 2) {
     issues.push({
       severity: 'medium',
-      title: 'Subquery Bertingkat',
-      desc: 'Ditemukan beberapa subquery di dalam query utama.',
-      why: 'Subquery bertingkat (terutama correlated subquery) dapat menyebabkan database mengeksekusi subquery tersebut secara berulang untuk setiap baris query luar, menurunkan performa secara eksponensial. Lebih disarankan menggunakan JOIN atau CTE.'
+      title: currentLang.value === 'id' ? 'Subquery Bertingkat' : 'Nested Subqueries',
+      desc: currentLang.value === 'id' ? 'Ditemukan beberapa subquery di dalam query utama.' : 'Identified nested subqueries in the main SQL.',
+      why: currentLang.value === 'id' ? 'Subquery bertingkat dapat menyebabkan database mengeksekusi subquery secara berulang (correlated).' : 'Nested subqueries could trigger repetitive sub-evaluations. Better replaced with joins or CTEs.'
     })
     score += 1
   }
@@ -1068,9 +1269,9 @@ const runOfflineAnalysis = (sql, explain, engine) => {
   if (/\bselect\s+distinct\b/.test(lowerSql)) {
     issues.push({
       severity: 'low',
-      title: 'Penggunaan DISTINCT',
-      desc: 'Menyaring baris duplikat secara eksplisit.',
-      why: 'DISTINCT memaksa database melakukan operasi sorting atau hashing di memori/disk untuk mencari duplikasi. Jika relasi database terjamin unik melalui join keys/primary keys, DISTINCT tidak diperlukan.'
+      title: currentLang.value === 'id' ? 'Penggunaan DISTINCT' : 'Redundant DISTINCT',
+      desc: currentLang.value === 'id' ? 'Menyaring baris duplikat secara eksplisit.' : 'Explicitly filters rows to ensure uniqueness.',
+      why: currentLang.value === 'id' ? 'DISTINCT memaksa database melakukan sorting atau hashing tambahan untuk dedup.' : 'Forces sorting/hashing deduplication overheads. Unnecessary if uniqueness is already guaranteed by schema key constraints.'
     })
     score += 1
   }
@@ -1090,13 +1291,17 @@ const runOfflineAnalysis = (sql, explain, engine) => {
   updateDiffModels()
 
   // Plan Visualizer
-  results.planSourceBadge = explain ? 'Heuristic Parsed Plan' : 'No Plan Provided'
+  results.planSourceBadge = explain ? t.value.heuristicPlanBadge : t.value.noPlanProvidedBadge
   if (explain) {
     results.visualNodes = parseVisualPlanNodes(explain, engine)
-    results.planExplainHTML = `<p>Telah dilakukan parsing lokal terhadap <strong>${engine.toUpperCase()}</strong> execution plan yang Anda masukkan. Lihat panel visualisasi di atas untuk detail hierarki scan.</p>`
+    results.planExplainHTML = currentLang.value === 'id' 
+      ? `<p>Telah dilakukan parsing lokal terhadap <strong>${engine.toUpperCase()}</strong> execution plan yang Anda masukkan. Lihat panel visualisasi di atas untuk detail hierarki scan.</p>`
+      : `<p>Locally parsed your <strong>${engine.toUpperCase()}</strong> execution plan. Check the visualized tree above for the cost hot spots.</p>`
   } else {
     results.visualNodes = []
-    results.planExplainHTML = `<p>Tidak ada data plan yang diinputkan. Database kemungkinan besar akan menggunakan sequential scan jika volume data besar dan index tidak tersedia pada query tersebut.</p>`
+    results.planExplainHTML = currentLang.value === 'id'
+      ? `<p>Tidak ada data plan yang diinputkan. Database kemungkinan besar akan menggunakan sequential scan jika volume data besar dan index tidak tersedia pada query tersebut.</p>`
+      : `<p>No execution plan details pasted. Database will likely default to sequential table scan if data grows without proper indexing.</p>`
   }
 
   currentTab.value = 'tab-overview'
@@ -1121,7 +1326,7 @@ const parseStructuralSummary = (sql) => {
 
   const joinMatches = sql.matchAll(/\b(left|right|inner|cross)?\s*join\s+([a-zA-Z0-9_]+)/gi)
   for (const match of joinMatches) {
-    joins.push(`${match[1] ? match[1].toUpperCase() : 'INNER'} JOIN pada ${match[2]}`)
+    joins.push(`${match[1] ? match[1].toUpperCase() : 'INNER'} JOIN ${currentLang.value === 'id' ? 'pada' : 'on'} ${match[2]}`)
     tables.push(match[2])
   }
 
@@ -1132,15 +1337,25 @@ const parseStructuralSummary = (sql) => {
 
   const cleanTables = [...new Set(tables)]
 
-  return `
-    <h5>Struktur Query Terdeteksi:</h5>
-    <ul>
-      <li><strong>Tabel Terlibat:</strong> ${cleanTables.length > 0 ? cleanTables.join(', ') : 'Tidak dapat diidentifikasi secara pasti'}</li>
-      <li><strong>Metode Join:</strong> ${joins.length > 0 ? joins.join(', ') : 'Tidak menggunakan ANSI JOIN (Single Table atau Cartesian implicit)'}</li>
-      <li><strong>Kondisi Filter (WHERE):</strong> <code>${whereConds.length > 0 ? whereConds[0] : 'Tidak ada filter pencarian'}</code></li>
-      <li><strong>Fungsi Agregasi:</strong> ${/\b(sum|avg|count|max|min)\b/i.test(sql) ? 'Ya (Terdeteksi)' : 'Tidak terdeteksi'}</li>
-    </ul>
-  `
+  return currentLang.value === 'id' 
+    ? `
+      <h5>Struktur Query Terdeteksi:</h5>
+      <ul>
+        <li><strong>Tabel Terlibat:</strong> ${cleanTables.length > 0 ? cleanTables.join(', ') : 'Tidak dapat diidentifikasi secara pasti'}</li>
+        <li><strong>Metode Join:</strong> ${joins.length > 0 ? joins.join(', ') : 'Tidak menggunakan ANSI JOIN (Single Table atau Cartesian implicit)'}</li>
+        <li><strong>Kondisi Filter (WHERE):</strong> <code>${whereConds.length > 0 ? whereConds[0] : 'Tidak ada filter pencarian'}</code></li>
+        <li><strong>Fungsi Agregasi:</strong> ${/\b(sum|avg|count|max|min)\b/i.test(sql) ? 'Ya (Terdeteksi)' : 'Tidak terdeteksi'}</li>
+      </ul>
+    `
+    : `
+      <h5>Detected Query Structure:</h5>
+      <ul>
+        <li><strong>Tables Involved:</strong> ${cleanTables.length > 0 ? cleanTables.join(', ') : 'Undetermined'}</li>
+        <li><strong>Join Methods:</strong> ${joins.length > 0 ? joins.join(', ') : 'No ANSI JOINs used (Implicit or single table)'}</li>
+        <li><strong>Filter Conditions (WHERE):</strong> <code>${whereConds.length > 0 ? whereConds[0] : 'No filter conditions'}</code></li>
+        <li><strong>Aggregation Functions:</strong> ${/\b(sum|avg|count|max|min)\b/i.test(sql) ? 'Yes (Detected)' : 'None detected'}</li>
+      </ul>
+    `
 }
 
 const parseOfflineIndexRecommendations = (sql, engine, issues) => {
@@ -1155,9 +1370,9 @@ const parseOfflineIndexRecommendations = (sql, engine, issues) => {
       indexRecs.push({
         name: `idx_${table1}_${col1}`,
         sql: `CREATE INDEX idx_${table1}_${col1}\nON ${table1}(${col1});`,
-        reason: `Membantu proses JOIN dengan mempercepat pencarian data relasional pada kolom key: ${col1}.`,
-        positive: `Mengubah index scan dari Nested Loop / Hash Join Full Scan menjadi Index Lookup yang efisien.`,
-        negative: `Menambah memori penyimpanan dan sedikit menurunkan performa INSERT/UPDATE pada tabel ${table1}.`
+        reason: currentLang.value === 'id' ? `Membantu proses JOIN dengan mempercepat pencarian data relasional pada kolom key: ${col1}.` : `Optimizes JOIN processing by indexing lookup foreign key: ${col1}.`,
+        positive: currentLang.value === 'id' ? `Mengubah index scan dari Nested Loop / Hash Join Full Scan menjadi Index Lookup yang efisien.` : `Swaps sequential relation scans to high-performance index lookups.`,
+        negative: currentLang.value === 'id' ? `Menambah memori penyimpanan dan sedikit menurunkan performa INSERT/UPDATE pada tabel ${table1}.` : `Increases storage overheads and slightly decreases write metrics on table ${table1}.`
       })
       addedFields.add(`${table1}_${col1}`)
     }
@@ -1165,9 +1380,9 @@ const parseOfflineIndexRecommendations = (sql, engine, issues) => {
       indexRecs.push({
         name: `idx_${table2}_${col2}`,
         sql: `CREATE INDEX idx_${table2}_${col2}\nON ${table2}(${col2});`,
-        reason: `Membantu proses JOIN dengan mempercepat pencarian data relasional pada kolom key: ${col2}.`,
-        positive: `Menghindari sequential table scan pada baris relasi join.`,
-        negative: `Menambah ukuran data index di disk.`
+        reason: currentLang.value === 'id' ? `Membantu proses JOIN dengan mempercepat pencarian data relasional pada kolom key: ${col2}.` : `Optimizes JOIN processing by indexing lookup foreign key: ${col2}.`,
+        positive: currentLang.value === 'id' ? `Menghindari sequential table scan pada baris relasi join.` : `Saves database engine from parsing the entire dataset.`,
+        negative: currentLang.value === 'id' ? `Menambah ukuran data index di disk.` : `Occupies additional disk space.`
       })
       addedFields.add(`${table2}_${col2}`)
     }
@@ -1184,9 +1399,9 @@ const parseOfflineIndexRecommendations = (sql, engine, issues) => {
       indexRecs.push({
         name: `idx_${tableGuess}_${col}`,
         sql: `CREATE INDEX idx_${tableGuess}_${col}\nON ${tableGuess}(${col});`,
-        reason: `Mempercepat filter pencarian (equality check) pada kolom WHERE: ${col}.`,
-        positive: `Database dapat langsung melompat ke baris yang dicocokkan.`,
-        negative: `Overhead tambahan saat modifikasi data.`
+        reason: currentLang.value === 'id' ? `Mempercepat filter pencarian (equality check) pada kolom WHERE: ${col}.` : `Speeds up query equality checks on filter key: ${col}.`,
+        positive: currentLang.value === 'id' ? `Database dapat langsung melompat ke baris yang dicocokkan.` : `Engine jumps directly to match rows.`,
+        negative: currentLang.value === 'id' ? `Overhead tambahan saat modifikasi data.` : `Minor overheads during data writes.`
       })
       addedFields.add(`${tableGuess}_${col}`)
     }
@@ -1198,7 +1413,7 @@ const parseOfflineIndexRecommendations = (sql, engine, issues) => {
 const parseOfflineOptimizedQuery = (sql, issues) => {
   let optimized = sql
   if (/\bselect\s+\*\b/i.test(optimized)) {
-    optimized = optimized.replace(/\bselect\s+\*\b/i, 'SELECT c.customer_id, c.first_name, o.order_id, o.order_date, o.total_amount -- Direkomendasikan mengganti * dengan kolom spesifik')
+    optimized = optimized.replace(/\bselect\s+\*\b/i, currentLang.value === 'id' ? 'SELECT c.customer_id, c.first_name, o.order_id, o.order_date, o.total_amount -- Direkomendasikan mengganti * dengan kolom spesifik' : 'SELECT c.customer_id, c.first_name, o.order_id, o.order_date, o.total_amount -- Specific column fetch instead of *')
   }
 
   if (/\bfrom\s+(\w+)\s+(\w+)\s*,\s*(\w+)\s+(\w+)\b/i.test(optimized) && /\bwhere\s+\w+\.\w+\s*=\s*\w+\.\w+/i.test(optimized)) {
@@ -1220,7 +1435,7 @@ const parseOfflineOptimizedQuery = (sql, issues) => {
   }
 
   if (/\bselect\s+distinct\b/i.test(optimized)) {
-    optimized = optimized.replace(/\bselect\s+distinct\b/i, 'SELECT /* Hapus DISTINCT jika key gabungan sudah dijamin unik */')
+    optimized = optimized.replace(/\bselect\s+distinct\b/i, currentLang.value === 'id' ? 'SELECT /* Hapus DISTINCT jika key gabungan sudah dijamin unik */' : 'SELECT /* Drop DISTINCT if relation combination keys are already unique */')
   }
 
   return optimized
@@ -1228,22 +1443,35 @@ const parseOfflineOptimizedQuery = (sql, issues) => {
 
 const parseOfflineExplanation = (issues) => {
   if (issues.length === 0) {
-    return '<p>Tidak ada perubahan penting yang diidentifikasi secara otomatis oleh engine offline.</p>'
+    return currentLang.value === 'id' 
+      ? '<p>Tidak ada perubahan penting yang diidentifikasi secara otomatis oleh engine offline.</p>'
+      : '<p>No optimizations were recommended by the local heuristics rules.</p>'
   }
 
-  let html = '<h5>Perubahan yang Direkomendasikan:</h5><ul>'
+  let html = currentLang.value === 'id' 
+    ? '<h5>Perubahan yang Direkomendasikan:</h5><ul>' 
+    : '<h5>Recommended Structural Improvements:</h5><ul>'
+    
   issues.forEach(issue => {
-    if (issue.title.includes('SELECT *')) {
-      html += '<li><strong>Mengganti SELECT * dengan Kolom Spesifik:</strong> Mengurangi I/O disk dan jaringan, mempermudah database engine menggunakan Index-Only Scan.</li>'
+    if (issue.title.includes('SELECT *') || issue.title.includes('Wildcard')) {
+      html += currentLang.value === 'id'
+        ? '<li><strong>Mengganti SELECT * dengan Kolom Spesifik:</strong> Mengurangi I/O disk dan jaringan, mempermudah database engine menggunakan Index-Only Scan.</li>'
+        : '<li><strong>Replace SELECT * with Columns:</strong> Lowers network/disk I/O and optimizes for Index-Only Scans.</li>'
     }
-    if (issue.title.includes('Implicit JOIN')) {
-      html += '<li><strong>Mengganti Koma dengan ANSI-92 INNER JOIN:</strong> Memisahkan logika relasional (ON) dengan kriteria filter (WHERE) sehingga query lebih rapi dan mencegah resiko Cartesian Join.</li>'
+    if (issue.title.includes('Implicit JOIN') || issue.title.includes('Comma Join')) {
+      html += currentLang.value === 'id'
+        ? '<li><strong>Mengganti Koma dengan ANSI-92 INNER JOIN:</strong> Memisahkan logika relasional (ON) dengan kriteria filter (WHERE) sehingga query lebih rapi dan mencegah resiko Cartesian Join.</li>'
+        : '<li><strong>Adopt ANSI-92 JOIN syntax:</strong> Clears relational keys from search criteria constraints to avoid accidental Cartesian products.</li>'
     }
-    if (issue.title.includes('Kondisi WHERE')) {
-      html += '<li><strong>Mencegah Pemakaian Fungsi pada Kolom WHERE:</strong> Mengubah `LOWER(c.status) = \'active\'` menjadi pencocokan langsung `c.status = \'active\'` (atau menggunakan case-insensitive collation) agar index dapat terbaca oleh B-Tree.</li>'
+    if (issue.title.includes('Fungsi') || issue.title.includes('Function')) {
+      html += currentLang.value === 'id'
+        ? '<li><strong>Mencegah Pemakaian Fungsi pada Kolom WHERE:</strong> Mengubah `LOWER(c.status) = \'active\'` menjadi pencocokan langsung `c.status = \'active\'` agar index dapat terbaca oleh B-Tree.</li>'
+        : '<li><strong>Eliminate column wrappers in filter matches:</strong> Replaces functions like LOWER(status) to bare keys so they map to index scans.</li>'
     }
     if (issue.title.includes('LIKE')) {
-      html += '<li><strong>Menghindari Leading Wildcard:</strong> Gunakan `LIKE \'keyword%\'` (trailing wildcard) jika memungkinkan, atau beralih ke Full-Text Search (FTS) index agar pencarian tidak memaksa Full Table Scan.</li>'
+      html += currentLang.value === 'id'
+        ? '<li><strong>Menghindari Leading Wildcard:</strong> Gunakan `LIKE \'keyword%\'` (trailing wildcard) jika memungkinkan, agar pencarian tidak memaksa Full Table Scan.</li>'
+        : '<li><strong>Avoid Prefix Wildcards:</strong> Swaps to trailing formats (`keyword%`) where viable to allow index searches instead of complete scans.</li>'
     }
   })
   html += '</ul>'
@@ -1252,7 +1480,7 @@ const parseOfflineExplanation = (issues) => {
 
 // Markdown parser
 const formatMarkdownToHTML = (md) => {
-  if (!md) return '<p class="placeholder-text">Tidak ada data.</p>'
+  if (!md) return `<p class="placeholder-text">${t.value.placeholderNoPlan}</p>`
   
   let html = md
     .replace(/&/g, '&amp;')
@@ -1293,7 +1521,7 @@ const parseIssuesFromMarkdown = (issuesMd) => {
         severity: match[1].toLowerCase().includes('tinggi') || match[1].toLowerCase().includes('high') ? 'high' : 'medium',
         title: match[1],
         desc: match[2],
-        why: 'Diidentifikasi oleh AI Performance Agent.'
+        why: currentLang.value === 'id' ? 'Diidentifikasi oleh AI Performance Agent.' : 'Reported by the AI Performance Agent.'
       })
     }
   })
@@ -1302,7 +1530,7 @@ const parseIssuesFromMarkdown = (issuesMd) => {
     parsed.push({
       severity: 'medium',
       title: 'Performance Issues',
-      desc: 'Klik tab Masalah Performa untuk membaca rincian lengkap dari AI.',
+      desc: currentLang.value === 'id' ? 'Klik tab Masalah Performa untuk membaca rincian lengkap dari AI.' : 'Click the issues tab for full detailed review.',
       why: issuesMd
     })
   }
@@ -1322,16 +1550,16 @@ const parseIndexesFromMarkdown = (indexesMd) => {
       const nameMatch = sql.match(/CREATE INDEX\s+([a-zA-Z0-9_]+)/i)
       const name = nameMatch ? nameMatch[1] : `idx_recommendation_${idx + 1}`
       
-      const reasonMatch = block.match(/Alasan:?\s*([^\n]+)/i) || []
-      const impactPos = block.match(/Dampak Positif:?\s*([^\n]+)/i) || []
-      const impactNeg = block.match(/Dampak Negatif:?\s*([^\n]+)/i) || []
+      const reasonMatch = block.match(/(?:Alasan|Reason):?\s*([^\n]+)/i) || []
+      const impactPos = block.match(/(?:Dampak Positif|Positive):?\s*([^\n]+)/i) || []
+      const impactNeg = block.match(/(?:Dampak Negatif|Negative):?\s*([^\n]+)/i) || []
 
       parsed.push({
         name: name,
         sql: sql,
-        reason: reasonMatch[1] || 'Membantu filtering query.',
-        positive: impactPos[1] || 'Mempercepat lookup index.',
-        negative: impactNeg[1] || 'Overhead penulisan disk.'
+        reason: reasonMatch[1] || (currentLang.value === 'id' ? 'Membantu filtering query.' : 'Assists database index seek filters.'),
+        positive: impactPos[1] || (currentLang.value === 'id' ? 'Mempercepat lookup index.' : 'Speeds up index lookups.'),
+        negative: impactNeg[1] || (currentLang.value === 'id' ? 'Overhead penulisan disk.' : 'Disk storage overheads.')
       })
     }
   })
