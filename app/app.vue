@@ -3,11 +3,7 @@
     <!-- Sidebar Settings & Config -->
     <aside class="sidebar">
       <div class="brand">
-        <span class="logo-icon">QS</span>
-        <div class="brand-text">
-          <h1>QuerySage</h1>
-          <span class="subtext">AI SQL Performance Agent</span>
-        </div>
+        <img src="/logo.png" alt="QuerySage Logo" class="brand-logo-img">
       </div>
 
       <!-- Quick Samples -->
@@ -41,7 +37,7 @@
       <div class="sidebar-section">
         <h3>Database Engine</h3>
         <div class="select-wrapper">
-          <select id="db-engine" v-model="dbEngine">
+          <select id="db-engine" v-model="dbEngine" @change="updateDefaultPort">
             <option value="postgresql">PostgreSQL</option>
             <option value="mysql">MySQL</option>
             <option value="sqlserver">Microsoft SQL Server</option>
@@ -49,6 +45,39 @@
             <option value="oracle">Oracle</option>
           </select>
         </div>
+      </div>
+
+      <!-- Direct DB Connection Credentials -->
+      <div class="sidebar-section">
+        <details class="config-details">
+          <summary class="config-summary">Direct DB Connection</summary>
+          <div class="config-details-content">
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="directConnectEnabled" @change="saveDBCredentials">
+              Enable Auto-Explain
+            </label>
+            
+            <div v-show="directConnectEnabled" class="provider-fields">
+              <label for="db-host">Host</label>
+              <input type="text" id="db-host" v-model="dbHost" placeholder="localhost" @input="saveDBCredentials">
+              
+              <label for="db-port">Port</label>
+              <input type="text" id="db-port" v-model="dbPort" placeholder="5432 / 3306" @input="saveDBCredentials">
+              
+              <label for="db-user">Username</label>
+              <input type="text" id="db-user" v-model="dbUser" placeholder="postgres" @input="saveDBCredentials">
+              
+              <label for="db-pass">Password</label>
+              <input type="password" id="db-pass" v-model="dbPass" placeholder="******" autocomplete="current-password" @input="saveDBCredentials">
+              
+              <label for="db-name">Database Name</label>
+              <input type="text" id="db-name" v-model="dbName" placeholder="my_db" @input="saveDBCredentials">
+              
+              <label for="db-uri">Or Connection URI</label>
+              <input type="text" id="db-uri" v-model="dbConnectionURI" placeholder="postgresql://user:pass@host:port/db" @input="saveDBCredentials">
+            </div>
+          </div>
+        </details>
       </div>
 
       <!-- Collapsible Settings to reduce clutter -->
@@ -117,7 +146,7 @@
       </div>
 
       <div class="sidebar-footer">
-        <p>by Baldwin for LO</p>
+        <p>by fa33az</p>
       </div>
     </aside>
 
@@ -430,6 +459,15 @@ const currentTab = ref('tab-overview')
 const loading = ref(false)
 const loadingText = ref('')
 
+// Database Connection Credentials (Fase 3)
+const directConnectEnabled = ref(false)
+const dbHost = ref('localhost')
+const dbPort = ref('5432')
+const dbUser = ref('postgres')
+const dbPass = ref('')
+const dbName = ref('postgres')
+const dbConnectionURI = ref('')
+
 const sampleBtnTexts = reactive({
   sample1: 'Unoptimized JOIN (Postgres)',
   sample2: 'Subquery & Wildcard (MySQL)',
@@ -492,11 +530,23 @@ const keyStatusText = computed(() => {
 
 // Life Cycle Hooks
 onMounted(() => {
+  // Load AI Keys
   if (localStorage.getItem('qs_gemini_key')) {
     geminiKey.value = localStorage.getItem('qs_gemini_key')
   }
   if (localStorage.getItem('qs_openai_key')) {
     openaiKey.value = localStorage.getItem('qs_openai_key')
+  }
+
+  // Load DB Credentials
+  if (localStorage.getItem('qs_db_host')) dbHost.value = localStorage.getItem('qs_db_host')
+  if (localStorage.getItem('qs_db_port')) dbPort.value = localStorage.getItem('qs_db_port')
+  if (localStorage.getItem('qs_db_user')) dbUser.value = localStorage.getItem('qs_db_user')
+  if (localStorage.getItem('qs_db_pass')) dbPass.value = localStorage.getItem('qs_db_pass')
+  if (localStorage.getItem('qs_db_name')) dbName.value = localStorage.getItem('qs_db_name')
+  if (localStorage.getItem('qs_db_conn_uri')) dbConnectionURI.value = localStorage.getItem('qs_db_conn_uri')
+  if (localStorage.getItem('qs_db_direct_enabled')) {
+    directConnectEnabled.value = localStorage.getItem('qs_db_direct_enabled') === 'true'
   }
 
   // Dynamically load Monaco Editor loader from CDN
@@ -603,6 +653,27 @@ const saveKeys = () => {
   localStorage.setItem('qs_openai_key', openaiKey.value.trim())
 }
 
+const saveDBCredentials = () => {
+  localStorage.setItem('qs_db_host', dbHost.value.trim())
+  localStorage.setItem('qs_db_port', dbPort.value.trim())
+  localStorage.setItem('qs_db_user', dbUser.value.trim())
+  localStorage.setItem('qs_db_pass', dbPass.value.trim())
+  localStorage.setItem('qs_db_name', dbName.value.trim())
+  localStorage.setItem('qs_db_conn_uri', dbConnectionURI.value.trim())
+  localStorage.setItem('qs_db_direct_enabled', directConnectEnabled.value ? 'true' : 'false')
+}
+
+const updateDefaultPort = () => {
+  if (dbEngine.value === 'postgresql') {
+    dbPort.value = '5432'
+    dbUser.value = 'postgres'
+  } else if (dbEngine.value === 'mysql') {
+    dbPort.value = '3306'
+    dbUser.value = 'root'
+  }
+  saveDBCredentials()
+}
+
 const copyText = (text, idx) => {
   navigator.clipboard.writeText(text)
   copyBtnTexts[idx] = 'Copied! ✓'
@@ -662,7 +733,7 @@ const loadSample = (key) => {
 
 const analyzeQuery = async () => {
   const sql = sqlQuery.value.trim()
-  const explain = explainPlan.value.trim()
+  let explain = explainPlan.value.trim()
   
   if (!sql) {
     alert('Silakan masukkan query SQL terlebih dahulu.')
@@ -670,6 +741,43 @@ const analyzeQuery = async () => {
   }
 
   loading.value = true
+  
+  // Direct Explain Connection logic (Fase 3)
+  if (directConnectEnabled.value) {
+    loadingText.value = 'Connecting to database and executing EXPLAIN...'
+    try {
+      const response = await fetch('/api/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          engine: dbEngine.value,
+          host: dbHost.value,
+          port: dbPort.value,
+          user: dbUser.value,
+          password: dbPass.value,
+          database: dbName.value,
+          connectionString: dbConnectionURI.value,
+          query: sql
+        })
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        explain = data.plan
+        explainPlan.value = data.plan
+        if (explainEditor) explainEditor.setValue(data.plan)
+      } else {
+        alert(`Failed to fetch database explain plan: ${data.message}`)
+        loading.value = false
+        return
+      }
+    } catch (e) {
+      alert(`Database connection failed: ${e.message}`)
+      loading.value = false
+      return
+    }
+  }
+
   loadingText.value = 'Menghubungkan ke Engine Analisis...'
 
   const hasKey = activeProvider.value === 'gemini' 
