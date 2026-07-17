@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/logo.png" alt="QuerySage Logo" width="160">
+</p>
+
 # QuerySage: AI SQL Performance Agent
 
 QuerySage is a client-side web application built with Nuxt.js that helps developers analyze, audit, and optimize SQL queries and execution plans for PostgreSQL, MySQL, Microsoft SQL Server, SQLite, and Oracle.
